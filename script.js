@@ -13,7 +13,7 @@ const userId = user?.id;
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     if (!userId) {
-        showError('Unable to get user information. Please open this app from Telegram.');
+        showError('Не удалось получить информацию о пользователе. Пожалуйста, откройте приложение из Telegram.');
         return;
     }
 
@@ -51,7 +51,7 @@ function showPurchaseScreen() {
 async function selectPlan(days) {
     // Check if user ID is available
     if (!userId) {
-        alert('Error: Unable to get user ID. Please open this app from Telegram.');
+        alert('Ошибка: Не удалось получить ID пользователя. Пожалуйста, откройте приложение из Telegram.');
         console.error('User ID not available');
         return;
     }
@@ -90,7 +90,7 @@ async function selectPlan(days) {
         if (data.payment_url) {
             // For now, since T-Bank is mock, simulate successful payment
             // In production, this would open the payment URL
-            alert(`Payment session created!\n\nPayment ID: ${data.payment_id}\nAmount: ${data.amount}₽\nDays: ${data.days}\n\nNote: T-Bank integration is currently in mock mode. In production, this would redirect to payment.`);
+            alert(`Платёжная сессия создана!\n\nID платежа: ${data.payment_id}\nСумма: ${data.amount}₽\nДней: ${data.days}\n\nПримечание: Интеграция T-Bank в тестовом режиме.`);
             
             // Simulate payment confirmation (for testing)
             // In production, remove this and use actual T-Bank webhook
@@ -124,7 +124,7 @@ async function selectPlan(days) {
         }
     } catch (error) {
         console.error('Payment error details:', error);
-        alert('Error: ' + error.message + '\n\nCheck browser console (F12) for details.');
+        alert('Ошибка: ' + error.message + '\n\nПроверьте консоль браузера (F12) для деталей.');
     } finally {
         // Re-enable buttons
         const planButtons = document.querySelectorAll('.plan-btn');
@@ -133,9 +133,7 @@ async function selectPlan(days) {
 }
 
 function getPlanAmount(days) {
-    if (days === 30) return 299;
-    if (days === 90) return 799;
-    if (days === 365) return 2499;
+    // Only 1 month plan available
     return 299;
 }
 
@@ -180,21 +178,21 @@ async function pollPaymentStatus(paymentId) {
 async function showSubscriptionScreen() {
     showScreen('subscriptionScreen');
     const content = document.getElementById('subscriptionContent');
-    content.innerHTML = '<div class="loading">Loading subscription status...</div>';
+    content.innerHTML = '<div class="loading">Загрузка статуса подписки...</div>';
 
     try {
         const response = await fetch(`${API_BASE_URL}/subscription-status?user_id=${userId}`);
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to load subscription');
+            throw new Error(data.error || 'Не удалось загрузить подписку');
         }
 
         renderSubscriptionStatus(data);
     } catch (error) {
         content.innerHTML = `
             <div class="error-message">
-                <h2>Error</h2>
+                <h2>Ошибка</h2>
                 <p>${error.message}</p>
             </div>
         `;
@@ -205,48 +203,60 @@ function renderSubscriptionStatus(data) {
     const content = document.getElementById('subscriptionContent');
     const isActive = data.status === 'active';
     const statusClass = isActive ? 'status-active' : 'status-inactive';
-    const statusText = isActive ? 'Active' : 'Inactive';
+    const statusText = isActive ? 'Активна' : 'Неактивна';
 
-    let daysRemaining = 'N/A';
+    let daysRemaining = 'Н/Д';
     if (data.days_remaining !== null && data.days_remaining !== undefined) {
-        daysRemaining = data.days_remaining > 0 ? `${data.days_remaining} days` : 'Expired';
+        const days = data.days_remaining;
+        if (days > 0) {
+            const dayWord = days === 1 ? 'день' : (days < 5 ? 'дня' : 'дней');
+            daysRemaining = `${days} ${dayWord}`;
+        } else {
+            daysRemaining = 'Истекла';
+        }
     }
 
-    let renewalDate = 'N/A';
+    let renewalDate = 'Н/Д';
     if (data.subscription_end) {
         const endDate = new Date(data.subscription_end);
-        renewalDate = endDate.toLocaleDateString();
+        renewalDate = endDate.toLocaleDateString('ru-RU');
+    }
+
+    let startDate = 'Н/Д';
+    if (data.subscription_start) {
+        const start = new Date(data.subscription_start);
+        startDate = start.toLocaleDateString('ru-RU');
     }
 
     content.innerHTML = `
         <div class="subscription-card">
             <span class="status-badge ${statusClass}">${statusText}</span>
             <div class="info-row">
-                <span class="info-label">Days Remaining:</span>
+                <span class="info-label">Осталось дней:</span>
                 <span class="info-value">${daysRemaining}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Renewal Date:</span>
+                <span class="info-label">Дата окончания:</span>
                 <span class="info-value">${renewalDate}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Start Date:</span>
-                <span class="info-value">${data.subscription_start ? new Date(data.subscription_start).toLocaleDateString() : 'N/A'}</span>
+                <span class="info-label">Дата начала:</span>
+                <span class="info-value">${startDate}</span>
             </div>
             <div class="action-buttons">
                 ${isActive ? `
-                    <button class="action-btn danger" onclick="cancelSubscription()">Cancel Subscription</button>
+                    <button class="action-btn danger" onclick="cancelSubscription()">Отменить подписку</button>
                 ` : `
-                    <button class="action-btn" onclick="showPurchaseScreen()">Purchase Subscription</button>
+                    <button class="action-btn" onclick="showPurchaseScreen()">Купить подписку</button>
                 `}
-                <button class="action-btn" onclick="updatePaymentMethod()">Update Payment Method</button>
+                <button class="action-btn" onclick="updatePaymentMethod()">Изменить способ оплаты</button>
             </div>
         </div>
     `;
 }
 
 async function cancelSubscription() {
-    if (!confirm('Are you sure you want to cancel your subscription?')) {
+    if (!confirm('Вы уверены, что хотите отменить подписку?')) {
         return;
     }
 
@@ -264,39 +274,39 @@ async function cancelSubscription() {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to cancel subscription');
+            throw new Error(data.error || 'Не удалось отменить подписку');
         }
 
-        alert('Subscription cancelled successfully');
+        alert('Подписка успешно отменена');
         showSubscriptionScreen();
     } catch (error) {
-        alert('Error: ' + error.message);
+        alert('Ошибка: ' + error.message);
     }
 }
 
 function updatePaymentMethod() {
-    alert('Payment method update will be available soon.');
+    alert('Изменение способа оплаты будет доступно в ближайшее время.');
 }
 
 // Reading Room
 async function showReadingRoomScreen() {
     showScreen('readingRoomScreen');
     const content = document.getElementById('readingRoomContent');
-    content.innerHTML = '<div class="loading">Checking access...</div>';
+    content.innerHTML = '<div class="loading">Проверка доступа...</div>';
 
     try {
         const response = await fetch(`${API_BASE_URL}/reading-room-access?user_id=${userId}`);
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to check access');
+            throw new Error(data.error || 'Не удалось проверить доступ');
         }
 
         renderReadingRoomAccess(data);
     } catch (error) {
         content.innerHTML = `
             <div class="error-message">
-                <h2>Error</h2>
+                <h2>Ошибка</h2>
                 <p>${error.message}</p>
             </div>
         `;
@@ -309,17 +319,17 @@ function renderReadingRoomAccess(data) {
     if (data.has_access) {
         content.innerHTML = `
             <div class="access-message">
-                <h2>Welcome to Reading Room</h2>
-                <p>You have access to our private book club channel.</p>
-                <a href="${data.channel_link}" class="join-link" target="_blank">Join Reading Room →</a>
+                <h2>Добро пожаловать в Reading Room</h2>
+                <p>У вас есть доступ к нашему закрытому каналу книжного клуба.</p>
+                <a href="${data.channel_link}" class="join-link" target="_blank">Перейти в Reading Room →</a>
             </div>
         `;
     } else {
         content.innerHTML = `
             <div class="error-message">
-                <h2>Subscription Expired</h2>
-                <p>Your subscription has expired. Please renew to access the Reading Room.</p>
-                <button class="main-button" onclick="showPurchaseScreen()" style="margin-top: 20px;">Purchase Subscription</button>
+                <h2>Подписка истекла</h2>
+                <p>Ваша подписка истекла. Пожалуйста, продлите подписку для доступа к Reading Room.</p>
+                <button class="main-button" onclick="showPurchaseScreen()" style="margin-top: 20px;">Купить подписку</button>
             </div>
         `;
     }
@@ -334,7 +344,7 @@ function showError(message) {
     document.body.innerHTML = `
         <div class="container">
             <div class="error-message">
-                <h2>Error</h2>
+                <h2>Ошибка</h2>
                 <p>${message}</p>
             </div>
         </div>

@@ -161,29 +161,43 @@ module.exports = async (req, res) => {
             }
 
             const { getAllSubscriptions } = require('./subscription');
+            const { getTelegramUserInfo } = require('./telegram');
             const subscriptions = await getAllSubscriptions();
 
-            const users = subscriptions.map(sub => {
-                let daysRemaining = 0;
-                if (sub.subscription_end && sub.subscription_status === 'active') {
-                    const endDate = new Date(sub.subscription_end);
-                    const now = new Date();
-                    const diffTime = endDate - now;
-                    daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    daysRemaining = Math.max(0, daysRemaining);
-                }
+            // Get all unique user IDs (including those without subscriptions)
+            const allUserIds = new Set(subscriptions.map(s => s.user_id));
+            
+            // Get user info from Telegram for all users
+            const usersWithInfo = await Promise.all(
+                Array.from(allUserIds).map(async (userId) => {
+                    const sub = subscriptions.find(s => s.user_id === userId);
+                    const userInfo = await getTelegramUserInfo(userId);
+                    
+                    let daysRemaining = 0;
+                    if (sub && sub.subscription_end && sub.subscription_status === 'active') {
+                        const endDate = new Date(sub.subscription_end);
+                        const now = new Date();
+                        const diffTime = endDate - now;
+                        daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        daysRemaining = Math.max(0, daysRemaining);
+                    }
 
-                return {
-                    user_id: sub.user_id,
-                    status: sub.subscription_status,
-                    subscription_start: sub.subscription_start,
-                    subscription_end: sub.subscription_end,
-                    days_remaining: daysRemaining,
-                    created_at: sub.created_at
-                };
-            });
+                    return {
+                        user_id: userId,
+                        username: userInfo?.username || null,
+                        first_name: userInfo?.first_name || null,
+                        last_name: userInfo?.last_name || null,
+                        userpic: userInfo?.photo_url || null,
+                        status: sub?.subscription_status || 'inactive',
+                        subscription_start: sub?.subscription_start || null,
+                        subscription_end: sub?.subscription_end || null,
+                        days_remaining: daysRemaining,
+                        created_at: sub?.created_at || null
+                    };
+                })
+            );
 
-            return res.json({ users });
+            return res.json({ users: usersWithInfo });
         }
 
         // Admin: Add days
@@ -216,6 +230,73 @@ module.exports = async (req, res) => {
             const { setSubscription } = require('./subscription');
             const result = await setSubscription(parseInt(user_id), status, end_date);
             return res.json({ success: true, ...result });
+        }
+
+        // Admin: Get messages for a user
+        if (path === '/admin/messages' && method === 'GET') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { user_id } = req.query;
+            if (!user_id) {
+                return res.status(400).json({ error: 'Missing user_id' });
+            }
+
+            const { allQuery } = require('./db');
+            const messages = await allQuery(
+                'SELECT * FROM messages WHERE user_id = ? ORDER BY created_at ASC',
+                [parseInt(user_id)]
+            );
+
+            return res.json({ messages });
+        }
+
+        // Admin: Send message to user
+        if (path === '/admin/send-message' && method === 'POST') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { user_id, message_text } = req.body;
+            if (!user_id || !message_text) {
+                return res.status(400).json({ error: 'Missing user_id or message_text' });
+            }
+
+            const { sendMessageToUser } = require('./telegram');
+            const { runQuery } = require('./db');
+
+            // Send message via Telegram
+            const sendResult = await sendMessageToUser(parseInt(user_id), message_text);
+
+            if (sendResult.success) {
+                // Save message to database
+                await runQuery(
+                    'INSERT INTO messages (user_id, message_text, is_from_user, created_at) VALUES (?, ?, 0, CURRENT_TIMESTAMP)',
+                    [parseInt(user_id), message_text]
+                );
+            }
+
+            return res.json(sendResult);
+        }
+
+        // Webhook: Receive message from user (to be called by Telegram bot)
+        if (path === '/webhook/message' && method === 'POST') {
+            const { message } = req.body;
+            
+            if (message && message.from && message.text) {
+                const { runQuery } = require('./db');
+                
+                // Save user message to database
+                await runQuery(
+                    'INSERT INTO messages (user_id, message_text, is_from_user, created_at) VALUES (?, ?, 1, CURRENT_TIMESTAMP)',
+                    [message.from.id, message.text]
+                );
+
+                return res.json({ success: true });
+            }
+
+            return res.status(400).json({ error: 'Invalid message format' });
         }
 
         // Cron job

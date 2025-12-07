@@ -52,11 +52,25 @@ function initDB() {
             `);
 
             db.run(`
+                CREATE TABLE IF NOT EXISTS messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    message_text TEXT NOT NULL,
+                    is_from_user INTEGER DEFAULT 1,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
+            db.run(`
                 CREATE INDEX IF NOT EXISTS idx_user_id ON subscriptions(user_id);
             `);
 
             db.run(`
                 CREATE INDEX IF NOT EXISTS idx_payment_id ON payment_history(payment_id);
+            `);
+
+            db.run(`
+                CREATE INDEX IF NOT EXISTS idx_messages_user_id ON messages(user_id);
             `);
         });
 

@@ -106,10 +106,61 @@ async function getChannelInviteLink() {
     }
 }
 
+/**
+ * Get user info from Telegram
+ */
+async function getTelegramUserInfo(userId) {
+    if (!bot) {
+        return null;
+    }
+
+    try {
+        const user = await bot.getChat(userId);
+        const photos = await bot.getUserProfilePhotos(userId, { limit: 1 }).catch(() => null);
+        let photoUrl = null;
+        
+        if (photos && photos.total_count > 0) {
+            const file = await bot.getFile(photos.photos[0][0].file_id).catch(() => null);
+            if (file) {
+                photoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
+            }
+        }
+
+        return {
+            username: user.username || null,
+            first_name: user.first_name || null,
+            last_name: user.last_name || null,
+            photo_url: photoUrl
+        };
+    } catch (error) {
+        console.error(`Error getting user info for ${userId}:`, error);
+        return null;
+    }
+}
+
+/**
+ * Send message to user
+ */
+async function sendMessageToUser(userId, text) {
+    if (!bot) {
+        return { success: false, error: 'Bot not configured' };
+    }
+
+    try {
+        await bot.sendMessage(userId, text);
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending message:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
     removeUserFromChannel,
     addUserToChannel,
     checkAndManageChannelAccess,
-    getChannelInviteLink
+    getChannelInviteLink,
+    getTelegramUserInfo,
+    sendMessageToUser
 };
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookflix Admin Panel</title>
+    <title>Bookflix - Админ панель</title>
     <style>
         * {
             margin: 0;
@@ -20,20 +20,27 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         header {
-            text-align: center;
-            padding: 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
             border-bottom: 1px solid #333;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin: 0;
         }
 
         .search-bar {
@@ -81,6 +88,29 @@
             background-color: #1a1a1a;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #333;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-id {
+            color: #999;
+            font-size: 12px;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -125,14 +155,14 @@
             background-color: #f0f0f0;
         }
 
-        .btn-danger {
-            background-color: #ff0000;
+        .btn-chat {
+            background-color: #0066ff;
             color: #ffffff;
-            border-color: #ff0000;
+            border-color: #0066ff;
         }
 
-        .btn-danger:hover {
-            background-color: #cc0000;
+        .btn-chat:hover {
+            background-color: #0052cc;
         }
 
         .modal {
@@ -157,15 +187,19 @@
             border: 2px solid #ffffff;
             border-radius: 12px;
             padding: 30px;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h2 {
             margin-bottom: 20px;
         }
 
-        .modal-content input {
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
             width: 100%;
             background-color: #000000;
             color: #ffffff;
@@ -174,9 +208,17 @@
             border-radius: 8px;
             font-size: 16px;
             margin-bottom: 15px;
+            font-family: inherit;
         }
 
-        .modal-content input:focus {
+        .modal-content textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus,
+        .modal-content select:focus {
             outline: none;
             background-color: #2a2a2a;
         }
@@ -185,6 +227,38 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+        }
+
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #000000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .chat-message.user {
+            background-color: #1a1a1a;
+            text-align: right;
+        }
+
+        .chat-message.admin {
+            background-color: #0066ff;
+            text-align: left;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
         }
 
         .loading {
@@ -206,29 +280,29 @@
 <body>
     <div class="container">
         <header>
-            <h1>📚 Bookflix Admin Panel</h1>
-            <p>Manage Subscriptions</p>
+            <img src="logo.svg" alt="Bookflix" class="logo">
+            <h1>Админ панель</h1>
         </header>
 
         <div id="errorMessage" class="error" style="display: none;"></div>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search by User ID or username...">
+            <input type="text" id="searchInput" placeholder="Поиск по ID пользователя или имени...">
         </div>
 
         <div id="usersContainer">
-            <div class="loading">Loading users...</div>
+            <div class="loading">Загрузка пользователей...</div>
         </div>
     </div>
 
     <!-- Add Days Modal -->
     <div id="addDaysModal" class="modal">
         <div class="modal-content">
-            <h2>Add Days</h2>
-            <input type="number" id="daysInput" placeholder="Number of days" min="1">
+            <h2>Добавить дни</h2>
+            <input type="number" id="daysInput" placeholder="Количество дней" min="1">
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('addDaysModal')">Cancel</button>
-                <button class="btn" onclick="confirmAddDays()">Add Days</button>
+                <button class="btn" onclick="closeModal('addDaysModal')">Отмена</button>
+                <button class="btn" onclick="confirmAddDays()">Добавить</button>
             </div>
         </div>
     </div>
@@ -236,16 +310,31 @@
     <!-- Set Subscription Modal -->
     <div id="setSubscriptionModal" class="modal">
         <div class="modal-content">
-            <h2>Set Subscription</h2>
-            <select id="statusSelect" style="width: 100%; background-color: #000000; color: #ffffff; border: 2px solid #ffffff; padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px;">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="cancelled">Cancelled</option>
+            <h2>Изменить подписку</h2>
+            <select id="statusSelect">
+                <option value="active">Активна</option>
+                <option value="inactive">Неактивна</option>
+                <option value="cancelled">Отменена</option>
             </select>
-            <input type="date" id="endDateInput" placeholder="End Date (optional)">
+            <input type="date" id="endDateInput" placeholder="Дата окончания (необязательно)">
             <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('setSubscriptionModal')">Cancel</button>
-                <button class="btn" onclick="confirmSetSubscription()">Set Subscription</button>
+                <button class="btn" onclick="closeModal('setSubscriptionModal')">Отмена</button>
+                <button class="btn" onclick="confirmSetSubscription()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <h2 id="chatUserName">Чат с пользователем</h2>
+            <div id="chatContainer" class="chat-container">
+                <div class="loading">Загрузка сообщений...</div>
+            </div>
+            <textarea id="chatMessageInput" placeholder="Введите сообщение..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('chatModal')">Закрыть</button>
+                <button class="btn btn-chat" onclick="sendChatMessage()">Отправить</button>
             </div>
         </div>
     </div>
@@ -253,4 +342,3 @@
     <script src="admin.js"></script>
 </body>
 </html>
-

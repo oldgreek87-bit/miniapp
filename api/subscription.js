@@ -154,13 +154,33 @@ async function setSubscription(userId, status, endDate) {
 
 /**
  * Get all subscriptions (admin function)
+ * Returns all users who have interacted with the system (have subscription or messages)
  */
 async function getAllSubscriptions() {
+    // Get all users who have subscriptions
     const subscriptions = await allQuery(
         'SELECT * FROM subscriptions ORDER BY created_at DESC'
     );
 
-    return subscriptions;
+    // Also get users who have sent messages but don't have subscriptions
+    const messageUsers = await allQuery(
+        `SELECT DISTINCT user_id FROM messages 
+         WHERE user_id NOT IN (SELECT user_id FROM subscriptions)`
+    );
+
+    // Create subscription entries for message-only users
+    const messageOnlyUsers = messageUsers.map(user => ({
+        user_id: user.user_id,
+        subscription_start: null,
+        subscription_end: null,
+        subscription_status: 'inactive',
+        payment_id: null,
+        created_at: null,
+        updated_at: null
+    }));
+
+    // Combine and return
+    return [...subscriptions, ...messageOnlyUsers];
 }
 
 /**
