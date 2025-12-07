@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookflix Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .search-bar {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            background-color: #2a2a2a;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .users-table th {
+            background-color: #1a1a1a;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .users-table tr:hover {
+            background-color: #1a1a1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #00ff00;
+            color: #000000;
+        }
+
+        .status-inactive {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+
+        .status-cancelled {
+            background-color: #ffaa00;
+            color: #000000;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 2px solid #ffffff;
+            background-color: #ffffff;
+            color: #000000;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-danger {
+            background-color: #ff0000;
+            color: #ffffff;
+            border-color: #ff0000;
+        }
+
+        .btn-danger:hover {
+            background-color: #cc0000;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            border: 2px solid #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            background-color: #000000;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            background-color: #2a2a2a;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #cccccc;
+        }
+
+        .error {
+            background-color: #1a1a1a;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Bookflix Admin Panel</h1>
+            <p>Manage Subscriptions</p>
+        </header>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by User ID or username...">
+        </div>
+
+        <div id="usersContainer">
+            <div class="loading">Loading users...</div>
+        </div>
+    </div>
+
+    <!-- Add Days Modal -->
+    <div id="addDaysModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Days</h2>
+            <input type="number" id="daysInput" placeholder="Number of days" min="1">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('addDaysModal')">Cancel</button>
+                <button class="btn" onclick="confirmAddDays()">Add Days</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Subscription Modal -->
+    <div id="setSubscriptionModal" class="modal">
+        <div class="modal-content">
+            <h2>Set Subscription</h2>
+            <select id="statusSelect" style="width: 100%; background-color: #000000; color: #ffffff; border: 2px solid #ffffff; padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px;">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <input type="date" id="endDateInput" placeholder="End Date (optional)">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeModal('setSubscriptionModal')">Cancel</button>
+                <button class="btn" onclick="confirmSetSubscription()">Set Subscription</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
+

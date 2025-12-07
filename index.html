@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bookflix - Book Club</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Bookflix</h1>
+            <p class="subtitle">Your Subscription Book Club</p>
+        </header>
+
+        <main>
+            <div class="button-group">
+                <button id="purchaseBtn" class="main-button">
+                    Purchase Subscription
+                </button>
+                <button id="subscriptionBtn" class="main-button">
+                    My Subscription
+                </button>
+                <button id="readingRoomBtn" class="main-button">
+                    Reading Room
+                </button>
+            </div>
+        </main>
+
+        <!-- Purchase Subscription Screen -->
+        <div id="purchaseScreen" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" onclick="showHome()">← Back</button>
+                <h2>Purchase Subscription</h2>
+            </div>
+            <div class="screen-content">
+                <div id="purchaseContent">
+                    <p>Choose your subscription plan:</p>
+                    <div class="plan-selector">
+                        <button class="plan-btn" onclick="selectPlan(30)">1 Month - 299₽</button>
+                        <button class="plan-btn" onclick="selectPlan(90)">3 Months - 799₽</button>
+                        <button class="plan-btn" onclick="selectPlan(365)">1 Year - 2499₽</button>
+                    </div>
+                    <div id="paymentWidget" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Subscription Screen -->
+        <div id="subscriptionScreen" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" onclick="showHome()">← Back</button>
+                <h2>My Subscription</h2>
+            </div>
+            <div class="screen-content">
+                <div id="subscriptionContent">
+                    <div class="loading">Loading subscription status...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Room Screen -->
+        <div id="readingRoomScreen" class="screen hidden">
+            <div class="screen-header">
+                <button class="back-btn" onclick="showHome()">← Back</button>
+                <h2>Reading Room</h2>
+            </div>
+            <div class="screen-content">
+                <div id="readingRoomContent">
+                    <div class="loading">Checking access...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Screen -->
+        <div id="confirmationScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="confirmation-message">
+                    <div class="success-icon">✓</div>
+                    <h2>Payment Successful!</h2>
+                    <p>Your subscription has been activated.</p>
+                    <button class="main-button" onclick="showHome()">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
