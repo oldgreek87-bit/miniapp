@@ -355,3 +355,47 @@ function toggleDescription(id) {
     const el = document.getElementById(id);
     el.classList.toggle('hidden');
 }
+
+// Expandable text
+function toggleDescription(id, btn) {
+    const el = document.getElementById(id);
+    const collapsed = el.classList.contains("collapsed");
+
+    if (collapsed) {
+        el.classList.remove("collapsed");
+        btn.innerText = btn.innerText.replace("↓", "↑");
+    } else {
+        el.classList.add("collapsed");
+        btn.innerText = btn.innerText.replace("↑", "↓");
+    }
+}
+
+// Simple carousel
+let currentSlide = 0;
+
+function goToSlide(n) {
+    const carousel = document.getElementById("carousel");
+    const dots = document.querySelectorAll(".dot");
+
+    currentSlide = n;
+    carousel.style.transform = `translateX(-${n * 100}%)`;
+
+    dots.forEach((dot, idx) =>
+        dot.classList.toggle("active", idx === n)
+    );
+}
+
+// Swipe support
+let startX = 0;
+
+document.getElementById("carousel").addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+});
+
+document.getElementById("carousel").addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+
+    if (diff > 50 && currentSlide < 1) goToSlide(currentSlide + 1);
+    if (diff < -50 && currentSlide > 0) goToSlide(currentSlide - 1);
+});

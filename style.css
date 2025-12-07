@@ -402,3 +402,92 @@ main {
     line-height: 1.5;
     font-size: 15px;
 }
+
+/* Wrapper */
+.featured-wrapper {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+/* Carousel */
+.carousel {
+    display: flex;
+    transition: transform 0.4s ease;
+    width: 200%;
+}
+
+.slide {
+    width: 100%;
+    padding: 0 20px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Cover */
+.featured-cover {
+    width: 65%;
+    max-width: 280px;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+/* Title */
+.featured-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+/* Tagline */
+.featured-tagline {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 12px;
+}
+
+/* Expand button */
+.expand-btn {
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid #555;
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 12px;
+}
+
+/* Description */
+.featured-description {
+    background: #111;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: left;
+    transition: max-height 0.4s ease;
+    overflow: hidden;
+    max-height: 800px;
+}
+
+.featured-description.collapsed {
+    max-height: 0;
+    padding: 0 14px;
+}
+
+/* Indicators */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    gap: 8px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background: #555;
+    border-radius: 50%;
+}
+
+.dot.active {
+    background: white;
+}

@@ -1,155 +1,87 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bookflix - Английский книжный клуб</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bookflix</title>
+    <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="logo.svg" alt="Bookflix" class="logo">
-            <p class="subtitle">английский книжный клуб</p>
-        </header>
 
-        <main>
-<div class="featured-carousel">
-    
-    <!-- Slide 1 — Book of the Month -->
-    <div class="featured-slide">
-        <img src="book-of-month.png" class="featured-cover" alt="Книга месяца">
-        <h2 class="featured-title">Книга месяца · Декабрь 2025</h2>
-        <p class="featured-tagline">регулярно читаем книги на английском и прокачиваем словарный запас</p>
+<main>
 
-        <button class="expand-btn" onclick="toggleDescription('bookDesc')">
-            О чём книга ↓
-        </button>
-
-        <div id="bookDesc" class="featured-description hidden">
-            <p>
-                Друзья, декабрь — это наш месяц уютных традиций. Может, когда-нибудь мы и нарушим правило, 
-                но обычно в это время года хочется ровно того, что мы вам сейчас предложим.
-            </p>
-            <p>
-                Читаем «Двенадцать дней Рождества» Сьюзан Стоукс-Чепмен — роман, который критики описывают 
-                как «Джейн Остин встречает Аббатство Даунтон».
-            </p>
-            <p>
-                Снежная деревушка Мерривэйк. Регентская Англия. Позади — наполеоновские войны, впереди — 
-                самый ожидаемый бал сезона. Но до Двенадцатой ночи ещё двенадцать дней — и каждая глава 
-                таит свою историю.
-            </p>
-            <p>
-                Укутывайтесь в плед, заваривайте чай — и присоединяйтесь к нашей декабрьской традиции. 
-                Обещаем атмосферу теплее глинтвейна у камина.
-            </p>
-        </div>
+    <!-- ������� -->
+    <div class="logo-container">
+        <img src="logo.png" class="logo" alt="Bookflix" />
+        <p class="club-subtitle">���������� ������� ����</p>
+        <hr class="divider" />
     </div>
 
-    <!-- Slide 2 — Magazine Issue -->
-    <div class="featured-slide">
-        <img src="magazine-22.png" class="featured-cover" alt="Журнал №22">
-        <h2 class="featured-title">Bookflix Monthly №22 · The Rooms Issue</h2>
-        <p class="featured-tagline">наш литературный клубный журнал</p>
+    <!-- ? ����� ���� � �������� -->
+    <div class="featured-wrapper">
 
-        <button class="expand-btn" onclick="toggleDescription('magDesc')">
-            О чём выпуск ↓
-        </button>
+        <div class="carousel" id="carousel">
+            
+            <!-- SLIDE 1 � ����� ������ -->
+            <div class="slide">
+                <img src="book-of-month.png" class="featured-cover" alt="����� ������">
 
-        <div id="magDesc" class="featured-description hidden">
-            <p><b>Комната, которая помнит твой страх.</b></p>
-            <p>
-                Выпуск о том, что остаётся после прочитанного. О книгах, которые меняют детей навсегда. 
-                О частоте, которую слышат только они.
-            </p>
-            <p>
-                Внутри: архитектура страха, метафоры-следы, слова для сумерек и паранормальное 
-                исследование того, что ты потерял, когда вырос.
-            </p>
-            <p>
-                Редактор номера — Наблюдатель. Тот, кто стоял в углу твоей комнаты, когда ты читал 
-                под одеялом с фонариком.
-            </p>
-            <p><b>Bookflix №22: The Rooms Issue.</b>  
-                Журнал уже отправлен членам клуба с годовым абонементом.
-            </p>
+                <h2 class="featured-title">����� ������ � ������� 2025</h2>
+                <p class="featured-tagline">��������� ������ ����� �� ���������� � ����������� ��������� �����</p>
+
+                <button class="expand-btn" onclick="toggleDescription('bookDesc', this)">
+                    � ��� ����� v
+                </button>
+
+                <div id="bookDesc" class="featured-description collapsed">
+                    <p>������, ������� � ��� ��� ����� ������ ��������</p>
+                    <p>������ ����������� ���� ��������� ������ ������-������</p>
+                    <p>������� ��������� ���������. ���������� �������</p>
+                    <p>������������ � ����, ����������� ���</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 2 � ������ -->
+            <div class="slide">
+                <img src="magazine-22.png" class="featured-cover" alt="������ #22">
+
+                <h2 class="featured-title">Bookflix Monthly �22 � The Rooms Issue</h2>
+                <p class="featured-tagline">��� ������������ ������� ������</p>
+
+                <button class="expand-btn" onclick="toggleDescription('magDesc', this)">
+                    � ��� ������ v
+                </button>
+
+                <div id="magDesc" class="featured-description collapsed">
+                    <p><b>�������, ������� ������ ���� �����.</b></p>
+                    <p>������ � ���, ��� ������� ����� ������������</p>
+                    <p>����������� ������, ��������-������</p>
+                    <p>�������� ������ � ������������</p>
+                    <p><b>Bookflix �22: The Rooms Issue</b>. ������ ��� ��������� �����������</p>
+                </div>
+            </div>
+
         </div>
+
+        <!-- ���������� -->
+        <div class="carousel-indicators">
+            <span class="dot active" onclick="goToSlide(0)"></span>
+            <span class="dot" onclick="goToSlide(1)"></span>
+        </div>
+
     </div>
 
-</div>
-
-            <div class="button-group">
-                <button id="purchaseBtn" class="main-button">
-                    Купить подписку
-                </button>
-                <button id="subscriptionBtn" class="main-button">
-                    Моя подписка
-                </button>
-                <button id="readingRoomBtn" class="main-button">
-                    Reading Room
-                </button>
-            </div>
-        </main>
-
-        <!-- Purchase Subscription Screen -->
-        <div id="purchaseScreen" class="screen hidden">
-            <div class="screen-header">
-                <button class="back-btn" onclick="showHome()">← Назад</button>
-                <h2>Купить подписку</h2>
-            </div>
-            <div class="screen-content">
-                <div id="purchaseContent">
-                    <p>Выберите план подписки:</p>
-                    <div class="plan-selector">
-                        <button class="plan-btn" onclick="selectPlan(30)">1 месяц - 299₽</button>
-                    </div>
-                    <div id="paymentWidget" class="hidden"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- My Subscription Screen -->
-        <div id="subscriptionScreen" class="screen hidden">
-            <div class="screen-header">
-                <button class="back-btn" onclick="showHome()">← Назад</button>
-                <h2>Моя подписка</h2>
-            </div>
-            <div class="screen-content">
-                <div id="subscriptionContent">
-                    <div class="loading">Загрузка статуса подписки...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Reading Room Screen -->
-        <div id="readingRoomScreen" class="screen hidden">
-            <div class="screen-header">
-                <button class="back-btn" onclick="showHome()">← Назад</button>
-                <h2>Reading Room</h2>
-            </div>
-            <div class="screen-content">
-                <div id="readingRoomContent">
-                    <div class="loading">Проверка доступа...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Confirmation Screen -->
-        <div id="confirmationScreen" class="screen hidden">
-            <div class="screen-content">
-                <div class="confirmation-message">
-                    <div class="success-icon">✓</div>
-                    <h2>Оплата успешна!</h2>
-                    <p>Ваша подписка активирована.</p>
-                    <button class="main-button" onclick="showHome()">Продолжить</button>
-                </div>
-            </div>
-        </div>
+    <!-- ������ -->
+    <div class="button-group">
+        <button class="action-btn" onclick="openSubscription()">������ ��������</button>
+        <button class="action-btn" onclick="mySubscription()">��� ��������</button>
+        <button class="action-btn" onclick="readingRoom()">Reading Room</button>
     </div>
 
-    <script src="script.js"></script>
+</main>
+
+<script src="script.js"></script>
+
 </body>
 </html>
-
