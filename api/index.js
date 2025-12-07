@@ -74,22 +74,30 @@ module.exports = async (req, res) => {
                 return res.status(404).json({ error: 'Payment not found' });
             }
 
-            // For now, simulate payment confirmation
-            // In production, check with T-Bank API
+            // For testing: Auto-confirm pending payments
+            // In production, check with T-Bank API first
             if (payment.status === 'pending') {
-                // Activate subscription
-                await activateSubscription(user_id, payment.days, payment_id);
-                await runQuery(
-                    `UPDATE payment_history 
-                     SET status = 'completed', completed_at = CURRENT_TIMESTAMP
-                     WHERE payment_id = ?`,
-                    [payment_id]
-                );
+                try {
+                    // Activate subscription
+                    await activateSubscription(parseInt(user_id), payment.days, payment_id);
+                    await runQuery(
+                        `UPDATE payment_history 
+                         SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+                         WHERE payment_id = ?`,
+                        [payment_id]
+                    );
 
-                return res.json({
-                    status: 'success',
-                    message: 'Payment confirmed and subscription activated'
-                });
+                    return res.json({
+                        status: 'success',
+                        message: 'Payment confirmed and subscription activated'
+                    });
+                } catch (error) {
+                    console.error('Error activating subscription:', error);
+                    return res.status(500).json({ 
+                        status: 'error',
+                        error: error.message || 'Failed to activate subscription'
+                    });
+                }
             }
 
             return res.json({

@@ -49,7 +49,21 @@ function showPurchaseScreen() {
 }
 
 async function selectPlan(days) {
+    // Check if user ID is available
+    if (!userId) {
+        alert('Error: Unable to get user ID. Please open this app from Telegram.');
+        console.error('User ID not available');
+        return;
+    }
+
     try {
+        // Show loading state
+        const planButtons = document.querySelectorAll('.plan-btn');
+        planButtons.forEach(btn => btn.disabled = true);
+        
+        const amount = getPlanAmount(days);
+        console.log('Creating payment:', { user_id: userId, days, amount });
+
         const response = await fetch(`${API_BASE_URL}/create-payment`, {
             method: 'POST',
             headers: {
@@ -58,32 +72,63 @@ async function selectPlan(days) {
             body: JSON.stringify({
                 user_id: userId,
                 days: days,
-                amount: getPlanAmount(days),
+                amount: amount,
             }),
         });
 
-        const data = await response.json();
+        console.log('Payment response status:', response.status);
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to create payment');
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(errorData.error || `HTTP ${response.status}: Failed to create payment`);
         }
+
+        const data = await response.json();
+        console.log('Payment data:', data);
 
         // Handle payment based on response
         if (data.payment_url) {
-            // Redirect to payment URL
-            window.open(data.payment_url, '_blank');
-            // Poll for payment confirmation
-            pollPaymentStatus(data.payment_id);
+            // For now, since T-Bank is mock, simulate successful payment
+            // In production, this would open the payment URL
+            alert(`Payment session created!\n\nPayment ID: ${data.payment_id}\nAmount: ${data.amount}₽\nDays: ${data.days}\n\nNote: T-Bank integration is currently in mock mode. In production, this would redirect to payment.`);
+            
+            // Simulate payment confirmation (for testing)
+            // In production, remove this and use actual T-Bank webhook
+            setTimeout(async () => {
+                try {
+                    const confirmResponse = await fetch(`${API_BASE_URL}/confirm-payment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            payment_id: data.payment_id,
+                            user_id: userId,
+                        }),
+                    });
+                    
+                    const confirmData = await confirmResponse.json();
+                    if (confirmData.status === 'success') {
+                        showConfirmationScreen();
+                    }
+                } catch (err) {
+                    console.error('Payment confirmation error:', err);
+                }
+            }, 2000);
         } else if (data.widget_html) {
             // Show payment widget
             document.getElementById('paymentWidget').innerHTML = data.widget_html;
             document.getElementById('paymentWidget').classList.remove('hidden');
         } else {
-            throw new Error('Invalid payment response');
+            throw new Error('Invalid payment response: ' + JSON.stringify(data));
         }
     } catch (error) {
-        alert('Error: ' + error.message);
-        console.error('Payment error:', error);
+        console.error('Payment error details:', error);
+        alert('Error: ' + error.message + '\n\nCheck browser console (F12) for details.');
+    } finally {
+        // Re-enable buttons
+        const planButtons = document.querySelectorAll('.plan-btn');
+        planButtons.forEach(btn => btn.disabled = false);
     }
 }
 
