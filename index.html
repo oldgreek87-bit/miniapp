@@ -7,81 +7,73 @@
     <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
 
-<main>
+<div class="logo-container">
+    <img src="logo.png" class="logo" alt="Bookflix" />
+    <p class="club-subtitle">Р°РЅРіР»РёР№СЃРєРёР№ РєРЅРёР¶РЅС‹Р№ РєР»СѓР±</p>
+    <hr class="divider" />
+</div>
 
-    <!-- ЛОГОТИП -->
-    <div class="logo-container">
-        <img src="logo.png" class="logo" alt="Bookflix" />
-        <p class="club-subtitle">английский книжный клуб</p>
-        <hr class="divider" />
-    </div>
+<!-- РљРђР РЈРЎР•Р›Р¬ -->
+<div class="featured-wrapper">
 
-    <!-- ? НОВЫЙ БЛОК — КАРУСЕЛЬ -->
-    <div class="featured-wrapper">
+    <div class="carousel" id="carousel">
 
-        <div class="carousel" id="carousel">
-            
-            <!-- SLIDE 1 — КНИГА МЕСЯЦА -->
-            <div class="slide">
-                <img src="book-of-month.png" class="featured-cover" alt="Книга месяца">
+        <!-- SLIDE 1 вЂ” BOOK -->
+        <div class="slide">
+            <img src="book-of-month.png" class="featured-cover" alt="РљРЅРёРіР° РјРµСЃСЏС†Р°" />
+            <h2 class="featured-title">РљРЅРёРіР° РјРµСЃСЏС†Р° В· Р”РµРєР°Р±СЂСЊ 2025</h2>
+            <p class="featured-tagline">СЂРµРіСѓР»СЏСЂРЅРѕ С‡РёС‚Р°РµРј РєРЅРёРіРё РЅР° Р°РЅРіР»РёР№СЃРєРѕРј Рё РїСЂРѕРєР°С‡РёРІР°РµРј СЃР»РѕРІР°СЂРЅС‹Р№ Р·Р°РїР°СЃ</p>
 
-                <h2 class="featured-title">Книга месяца · Декабрь 2025</h2>
-                <p class="featured-tagline">регулярно читаем книги на английском и прокачиваем словарный запас</p>
+            <button class="expand-btn" onclick="toggleDescription('bookDesc', this)">
+                Рћ С‡С‘Рј РєРЅРёРіР° в†“
+            </button>
 
-                <button class="expand-btn" onclick="toggleDescription('bookDesc', this)">
-                    О чём книга v
-                </button>
-
-                <div id="bookDesc" class="featured-description collapsed">
-                    <p>Друзья, декабрь — это наш месяц уютных традиций…</p>
-                    <p>Читаем «Двенадцать дней Рождества» Сьюзан Стоукс-Чепмен…</p>
-                    <p>Снежная деревушка Мерривэйк. Регентская Англия…</p>
-                    <p>Укутывайтесь в плед, заваривайте чай…</p>
-                </div>
+            <div id="bookDesc" class="featured-description collapsed">
+                <p>Р”СЂСѓР·СЊСЏ, РґРµРєР°Р±СЂСЊ вЂ” СЌС‚Рѕ РЅР°С€ РјРµСЃСЏС† СѓСЋС‚РЅС‹С… С‚СЂР°РґРёС†РёР№вЂ¦</p>
+                <p>В«Р”РІРµРЅР°РґС†Р°С‚СЊ РґРЅРµР№ Р РѕР¶РґРµСЃС‚РІР°В» вЂ” СЂРѕРјР°РЅ, РєРѕС‚РѕСЂС‹Р№ РѕРїРёСЃС‹РІР°СЋС‚ РєР°Рє В«Р”Р¶РµР№РЅ РћСЃС‚РёРЅ РІСЃС‚СЂРµС‡Р°РµС‚ РђР±Р±Р°С‚СЃС‚РІРѕ Р”Р°СѓРЅС‚РѕРЅВ»вЂ¦</p>
+                <p>РЎРЅРµР¶РЅР°СЏ РґРµСЂРµРІСѓС€РєР° РњРµСЂСЂРёРІСЌР№Рє. РђРЅРіР»РёСЏ СЌРїРѕС…Рё Р РµРіРµРЅС‚СЃС‚РІР°вЂ¦</p>
+                <p>РЈРєСѓС‚С‹РІР°Р№С‚РµСЃСЊ РІ РїР»РµРґ, Р·Р°РІР°СЂРёРІР°Р№С‚Рµ С‡Р°Р№ вЂ” Рё РїСЂРёСЃРѕРµРґРёРЅСЏР№С‚РµСЃСЊ.</p>
             </div>
-
-            <!-- SLIDE 2 — ЖУРНАЛ -->
-            <div class="slide">
-                <img src="magazine-22.png" class="featured-cover" alt="Журнал #22">
-
-                <h2 class="featured-title">Bookflix Monthly №22 · The Rooms Issue</h2>
-                <p class="featured-tagline">наш литературный клубный журнал</p>
-
-                <button class="expand-btn" onclick="toggleDescription('magDesc', this)">
-                    О чём выпуск v
-                </button>
-
-                <div id="magDesc" class="featured-description collapsed">
-                    <p><b>Комната, которая помнит твой страх.</b></p>
-                    <p>Выпуск о том, что остаётся после прочитанного…</p>
-                    <p>Архитектура страха, метафоры-следы…</p>
-                    <p>Редактор номера — Наблюдатель…</p>
-                    <p><b>Bookflix №22: The Rooms Issue</b>. Журнал уже отправлен подписчикам…</p>
-                </div>
-            </div>
-
         </div>
 
-        <!-- ИНДИКАТОРЫ -->
-        <div class="carousel-indicators">
-            <span class="dot active" onclick="goToSlide(0)"></span>
-            <span class="dot" onclick="goToSlide(1)"></span>
+        <!-- SLIDE 2 вЂ” MAGAZINE -->
+        <div class="slide">
+            <img src="magazine-22.png" class="featured-cover" alt="Р–СѓСЂРЅР°Р» 22" />
+            <h2 class="featured-title">Bookflix Monthly в„–22 В· The Rooms Issue</h2>
+            <p class="featured-tagline">РЅР°С€ Р»РёС‚РµСЂР°С‚СѓСЂРЅС‹Р№ РєР»СѓР±РЅС‹Р№ Р¶СѓСЂРЅР°Р»</p>
+
+            <button class="expand-btn" onclick="toggleDescription('magDesc', this)">
+                Рћ С‡С‘Рј РІС‹РїСѓСЃРє в†“
+            </button>
+
+            <div id="magDesc" class="featured-description collapsed">
+                <p><b>РљРѕРјРЅР°С‚Р°, РєРѕС‚РѕСЂР°СЏ РїРѕРјРЅРёС‚ С‚РІРѕР№ СЃС‚СЂР°С….</b></p>
+                <p>Р’С‹РїСѓСЃРє Рѕ РєРЅРёРіР°С…, РєРѕС‚РѕСЂС‹Рµ РѕСЃС‚Р°СЋС‚СЃСЏ СЃ РЅР°РјРё РЅР°РІСЃРµРіРґР°вЂ¦</p>
+                <p>РђСЂС…РёС‚РµРєС‚СѓСЂР° СЃС‚СЂР°С…Р°, РјРµС‚Р°С„РѕСЂС‹-СЃР»РµРґС‹, СЃР»РѕРІР° РґР»СЏ СЃСѓРјРµСЂРµРєвЂ¦</p>
+                <p>РљСѓСЂР°С‚РѕСЂ РЅРѕРјРµСЂР° вЂ” РќР°Р±Р»СЋРґР°С‚РµР»СЊ.</p>
+            </div>
         </div>
 
     </div>
 
-    <!-- КНОПКИ -->
-    <div class="button-group">
-        <button class="action-btn" onclick="openSubscription()">Купить подписку</button>
-        <button class="action-btn" onclick="mySubscription()">Моя подписка</button>
-        <button class="action-btn" onclick="readingRoom()">Reading Room</button>
+    <!-- РРќР”РРљРђРўРћР Р« -->
+    <div class="carousel-indicators">
+        <span class="dot active" onclick="goToSlide(0)"></span>
+        <span class="dot" onclick="goToSlide(1)"></span>
     </div>
 
-</main>
+</div>
+
+<!-- РљРќРћРџРљР -->
+<div class="button-group">
+    <button class="action-btn" onclick="openSubscription()">РљСѓРїРёС‚СЊ РїРѕРґРїРёСЃРєСѓ</button>
+    <button class="action-btn" onclick="mySubscription()">РњРѕСЏ РїРѕРґРїРёСЃРєР°</button>
+    <button class="action-btn" onclick="readingRoom()">Reading Room</button>
+</div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
