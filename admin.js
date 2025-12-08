@@ -48,9 +48,13 @@ async function loadCurrentContent() {
             document.getElementById('bookMonth').value = book.month;
             document.getElementById('bookYear').value = book.year;
             document.getElementById('bookTitle').value = book.title;
+            document.getElementById('bookTitleEn').value = book.title_en || book.title || '';
             document.getElementById('bookAuthor').value = book.author;
+            document.getElementById('bookPages').value = book.pages || '';
+            document.getElementById('bookPublishedAt').value = book.published_at ? book.published_at.split('T')[0] : '';
             document.getElementById('bookDescription').value = book.description;
-            document.getElementById('bookImageUrl').value = book.image_url || '';
+            document.getElementById('bookImageUrl').value = book.image_url || book.cover_url || '';
+            document.getElementById('bookCoverUrl').value = book.cover_url || '';
         }
 
         // Load current magazine
@@ -77,10 +81,19 @@ async function saveBook(event) {
         month: parseInt(document.getElementById('bookMonth').value),
         year: parseInt(document.getElementById('bookYear').value),
         title: document.getElementById('bookTitle').value,
+        title_en: document.getElementById('bookTitleEn').value,
         author: document.getElementById('bookAuthor').value,
+        pages: parseInt(document.getElementById('bookPages').value),
+        published_at: document.getElementById('bookPublishedAt').value,
         description: document.getElementById('bookDescription').value,
-        image_url: document.getElementById('bookImageUrl').value || null
+        image_url: document.getElementById('bookImageUrl').value || null,
+        cover_url: document.getElementById('bookCoverUrl').value || null
     };
+
+    if (!bookData.title_en || !bookData.published_at || !bookData.pages || Number.isNaN(bookData.pages)) {
+        showError('Заполните все поля: EN название, дата, страницы.');
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}/admin/book-of-month`, {

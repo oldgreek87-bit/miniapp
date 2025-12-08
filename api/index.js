@@ -52,10 +52,11 @@ module.exports = async (req, res) => {
                 const latestBook = await getQuery(
                     'SELECT * FROM book_of_month ORDER BY year DESC, month DESC LIMIT 1'
                 );
-                return res.json(latestBook || null);
+                if (!latestBook) return res.json(null);
+                return res.json(formatBookResponse(latestBook));
             }
 
-            return res.json(book);
+            return res.json(formatBookResponse(book));
         }
 
         // Get latest magazine
@@ -227,16 +228,16 @@ module.exports = async (req, res) => {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
 
-            const { month, year, title, author, description, image_url } = req.body;
-            if (!month || !year || !title || !author || !description) {
+            const { month, year, title, title_en, author, published_at, pages, description, cover_url } = req.body;
+            if (!month || !year || !title || !author || !description || !title_en || !published_at || !pages) {
                 return res.status(400).json({ error: 'Missing required fields' });
             }
 
             await runQuery(
                 `INSERT OR REPLACE INTO book_of_month 
-                 (month, year, title, author, description, image_url, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-                [month, year, title, author, description, image_url || null]
+                 (month, year, title, title_en, author, published_at, pages, description, image_url, cover_url, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+                [month, year, title, title_en, author, published_at, pages, description, cover_url || null, cover_url || null]
             );
 
             return res.json({ success: true });
@@ -318,4 +319,20 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: error.message || 'Internal server error' });
     }
 };
+
+function formatBookResponse(book) {
+    return {
+        month: book.month,
+        year: book.year,
+        title: book.title,
+        title_en: book.title_en || book.title,
+        author: book.author,
+        published_at: book.published_at || null,
+        pages: book.pages || null,
+        description: book.description,
+        cover_url: book.cover_url || book.image_url || null,
+        updated_at: book.updated_at,
+        created_at: book.created_at
+    };
+}
 

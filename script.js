@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Setup swipe handlers
     setupSwipe();
+
+    const descToggle = document.getElementById('bookDescriptionToggle');
+    if (descToggle) {
+        descToggle.addEventListener('click', toggleBookDescription);
+    }
 });
 
 // Load Book of Month
@@ -41,23 +46,48 @@ async function loadBookOfMonth() {
         const response = await fetch(`${API_BASE_URL}/book-of-month`);
         const data = await response.json();
 
-        if (data && data.title) {
-            document.getElementById('bookTitle').textContent = data.title;
-            document.getElementById('bookAuthor').textContent = data.author;
-            document.getElementById('bookDescriptionText').textContent = data.description;
-            
-            if (data.image_url) {
+        const bookTitleEl = document.getElementById('bookTitle');
+        const bookAuthorEl = document.getElementById('bookAuthor');
+        const bookDateEl = document.getElementById('bookDate');
+        const bookPagesEl = document.getElementById('bookPages');
+        const bookDescWrap = document.getElementById('bookDescription');
+        const bookDescText = document.getElementById('bookDescriptionText');
+        const bookDescToggle = document.getElementById('bookDescriptionToggle');
+        const fadeMask = bookDescWrap.querySelector('.fade-mask');
+
+        const book = data && data.title ? data : null;
+
+        if (book) {
+            bookTitleEl.textContent = book.title_en || book.title || '—';
+            bookAuthorEl.textContent = book.author || '—';
+
+            const dateText = book.published_at ? formatDate(book.published_at) : '—';
+            bookDateEl.textContent = dateText;
+            bookPagesEl.textContent = book.pages ? `${book.pages} стр.` : '—';
+
+            if (book.description) {
+                bookDescText.textContent = book.description;
+                bookDescWrap.style.display = 'block';
+                resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask, bookDescToggle);
+            } else {
+                bookDescText.textContent = '';
+                bookDescWrap.style.display = 'none';
+            }
+
+            const cover = book.cover_url || book.image_url;
+            if (cover) {
                 const img = document.getElementById('bookImage');
-                img.src = data.image_url;
+                img.src = cover;
                 img.onerror = function() {
                     this.src = 'book-of-month.png';
                 };
             }
         } else {
-            // Default December 2025 book
-            document.getElementById('bookTitle').textContent = 'Двенадцать дней Рождества';
-            document.getElementById('bookAuthor').textContent = 'Сьюзан Стоукс-Чепмен';
-            document.getElementById('bookDescriptionText').textContent = `Друзья, декабрь — это наш месяц уютных традиций. Может, когда-нибудь мы и нарушим правило, но обычно в это время года хочется ровно того, что мы вам сейчас предложим.
+            // Default fallback without overriding title
+            bookAuthorEl.textContent = 'Сьюзан Стоукс-Чепмен';
+            bookDateEl.textContent = 'Декабрь 2025';
+            bookPagesEl.textContent = '320 стр.';
+            bookDescText.textContent = `Друзья, декабрь — это наш месяц уютных традиций. Может, когда-нибудь мы и нарушим правило, но обычно в это время года хочется ровно того, что мы вам сейчас предложим.
 
 Читаем "Двенадцать дней Рождества" Сьюзан Стоукс-Чепмен — роман, который критики описывают как "Джейн Остин встречает Аббатство Даунтон".
 
@@ -66,9 +96,44 @@ async function loadBookOfMonth() {
 Книга устроена изящно: каждая глава — почти отдельная история, вдохновлённая строчкой из рождественской песни (куропатка на грушевом дереве, барабанщик, волынщик...). Но все они переплетаются, герои перетекают из главы в главу, а к финалу все нити сходятся на грандиозном балу.
 
 Укутывайтесь в плед, заваривайте чай — и присоединяйтесь к нашей декабрьской традиции. Обещаем атмосферу теплее глинтвейна у камина.`;
+            resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask, bookDescToggle);
         }
     } catch (error) {
         console.error('Error loading book:', error);
+    }
+}
+
+function formatDate(dateString) {
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return dateString;
+    return d.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function resetDescriptionCollapse(wrapper, textEl, maskEl, toggleBtn) {
+    if (!wrapper || !textEl) return;
+    wrapper.classList.add('collapsed');
+    textEl.style.maxHeight = '160px';
+    textEl.style.webkitMaskImage = '';
+    textEl.style.maskImage = '';
+    if (maskEl) maskEl.style.display = 'block';
+    if (toggleBtn) toggleBtn.textContent = 'Читать дальше';
+}
+
+function toggleBookDescription() {
+    const wrapper = document.getElementById('bookDescription');
+    const textEl = document.getElementById('bookDescriptionText');
+    const maskEl = wrapper?.querySelector('.fade-mask');
+    const toggleBtn = document.getElementById('bookDescriptionToggle');
+    if (!wrapper || !textEl || !toggleBtn) return;
+
+    const isCollapsed = wrapper.classList.contains('collapsed');
+    if (isCollapsed) {
+        wrapper.classList.remove('collapsed');
+        textEl.style.maxHeight = 'none';
+        if (maskEl) maskEl.style.display = 'none';
+        toggleBtn.textContent = 'Свернуть';
+    } else {
+        resetDescriptionCollapse(wrapper, textEl, maskEl, toggleBtn);
     }
 }
 

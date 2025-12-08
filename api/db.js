@@ -66,14 +66,24 @@ function initDB() {
                     month INTEGER NOT NULL,
                     year INTEGER NOT NULL,
                     title TEXT NOT NULL,
+                    title_en TEXT,
                     author TEXT NOT NULL,
+                    published_at TEXT,
+                    pages INTEGER,
                     description TEXT NOT NULL,
                     image_url TEXT,
+                    cover_url TEXT,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(month, year)
                 )
             `);
+
+            // Add new columns if missing (safe no-op on repeat runs)
+            db.run(`ALTER TABLE book_of_month ADD COLUMN title_en TEXT`, () => {});
+            db.run(`ALTER TABLE book_of_month ADD COLUMN published_at TEXT`, () => {});
+            db.run(`ALTER TABLE book_of_month ADD COLUMN pages INTEGER`, () => {});
+            db.run(`ALTER TABLE book_of_month ADD COLUMN cover_url TEXT`, () => {});
 
             db.run(`
                 CREATE TABLE IF NOT EXISTS monthly_magazine (

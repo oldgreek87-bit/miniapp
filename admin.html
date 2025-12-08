@@ -276,8 +276,20 @@
                         <input type="text" id="bookTitle" required>
                     </div>
                     <div class="form-group">
+                        <label>Название книги (EN)</label>
+                        <input type="text" id="bookTitleEn" required>
+                    </div>
+                    <div class="form-group">
                         <label>Автор</label>
                         <input type="text" id="bookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество страниц</label>
+                        <input type="number" id="bookPages" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата публикации (YYYY-MM-DD)</label>
+                        <input type="date" id="bookPublishedAt" required>
                     </div>
                     <div class="form-group">
                         <label>Описание (будет показано в "О чём книга")</label>
@@ -286,6 +298,10 @@
                     <div class="form-group">
                         <label>URL изображения (или путь к файлу, например: book-of-month.png)</label>
                         <input type="text" id="bookImageUrl" placeholder="book-of-month.png">
+                    </div>
+                    <div class="form-group">
+                        <label>URL обложки (High-resolution)</label>
+                        <input type="url" id="bookCoverUrl" placeholder="https://.../cover.png" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Сохранить книгу</button>
                 </form>
