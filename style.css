@@ -115,7 +115,7 @@ main {
     gap: 18px;
     width: 100%;
     max-width: 360px;
-    margin: -8px auto 10px auto; /* pulled up closer to title/info */
+    margin: 10px auto 12px auto; /* slightly lowered to sit between info and description */
 }
 
 .action-icon-btn {
@@ -249,8 +249,8 @@ main {
 /* Book description preview */
 .book-description-preview {
     position: relative;
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 6px;
+    padding-top: 6px;
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -286,10 +286,11 @@ main {
     background: rgba(22,22,22,0.7);
     backdrop-filter: blur(12px);
     border-top: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 18px 0 14px 0;
+    padding: 28px 0 26px 0;
     z-index: 1000;
     height: 70px;
 }
