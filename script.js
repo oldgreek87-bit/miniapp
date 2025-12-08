@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup swipe handlers
     setupSwipe();
 
-    const descToggle = document.getElementById('bookDescriptionToggle');
-    if (descToggle) {
-        descToggle.addEventListener('click', toggleBookDescription);
+    const descWrapper = document.getElementById('bookDescription');
+    if (descWrapper) {
+        descWrapper.addEventListener('click', toggleBookDescription);
     }
 });
 
@@ -52,13 +52,12 @@ async function loadBookOfMonth() {
         const bookPagesEl = document.getElementById('bookPages');
         const bookDescWrap = document.getElementById('bookDescription');
         const bookDescText = document.getElementById('bookDescriptionText');
-        const bookDescToggle = document.getElementById('bookDescriptionToggle');
         const fadeMask = bookDescWrap.querySelector('.fade-mask');
 
         const book = data && data.title ? data : null;
 
         if (book) {
-            bookTitleEl.textContent = book.title_en || book.title || '—';
+            bookTitleEl.textContent = book.title_en || book.title || '';
             bookAuthorEl.textContent = book.author || '—';
 
             const dateText = book.published_at ? formatDate(book.published_at) : '—';
@@ -68,7 +67,7 @@ async function loadBookOfMonth() {
             if (book.description) {
                 bookDescText.textContent = book.description;
                 bookDescWrap.style.display = 'block';
-                resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask, bookDescToggle);
+                resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask);
             } else {
                 bookDescText.textContent = '';
                 bookDescWrap.style.display = 'none';
@@ -96,7 +95,7 @@ async function loadBookOfMonth() {
 Книга устроена изящно: каждая глава — почти отдельная история, вдохновлённая строчкой из рождественской песни (куропатка на грушевом дереве, барабанщик, волынщик...). Но все они переплетаются, герои перетекают из главы в главу, а к финалу все нити сходятся на грандиозном балу.
 
 Укутывайтесь в плед, заваривайте чай — и присоединяйтесь к нашей декабрьской традиции. Обещаем атмосферу теплее глинтвейна у камина.`;
-            resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask, bookDescToggle);
+            resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask);
         }
     } catch (error) {
         console.error('Error loading book:', error);
@@ -109,31 +108,28 @@ function formatDate(dateString) {
     return d.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function resetDescriptionCollapse(wrapper, textEl, maskEl, toggleBtn) {
+function resetDescriptionCollapse(wrapper, textEl, maskEl) {
     if (!wrapper || !textEl) return;
     wrapper.classList.add('collapsed');
     textEl.style.maxHeight = '160px';
     textEl.style.webkitMaskImage = '';
     textEl.style.maskImage = '';
     if (maskEl) maskEl.style.display = 'block';
-    if (toggleBtn) toggleBtn.textContent = 'Читать дальше';
 }
 
 function toggleBookDescription() {
     const wrapper = document.getElementById('bookDescription');
     const textEl = document.getElementById('bookDescriptionText');
     const maskEl = wrapper?.querySelector('.fade-mask');
-    const toggleBtn = document.getElementById('bookDescriptionToggle');
-    if (!wrapper || !textEl || !toggleBtn) return;
+    if (!wrapper || !textEl) return;
 
     const isCollapsed = wrapper.classList.contains('collapsed');
     if (isCollapsed) {
         wrapper.classList.remove('collapsed');
         textEl.style.maxHeight = 'none';
         if (maskEl) maskEl.style.display = 'none';
-        toggleBtn.textContent = 'Свернуть';
     } else {
-        resetDescriptionCollapse(wrapper, textEl, maskEl, toggleBtn);
+        resetDescriptionCollapse(wrapper, textEl, maskEl);
     }
 }
 
