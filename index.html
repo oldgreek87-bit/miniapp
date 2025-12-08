@@ -15,6 +15,59 @@
         </header>
 
         <main>
+            <!-- Book of Month Section -->
+            <div id="bookSection" class="content-section active">
+                <div class="content-header">
+                    <p class="content-tagline">регулярно читаем книги на английском</p>
+                    <p class="content-tagline">прокачиваем словарный запас</p>
+                </div>
+                
+                <div class="book-container">
+                    <img id="bookImage" src="book-of-month.png" alt="Книга месяца" class="book-image">
+                    <div class="book-info">
+                        <h2 id="bookTitle" class="book-title">Загрузка...</h2>
+                        <p id="bookAuthor" class="book-author">Загрузка...</p>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <button class="expand-btn" onclick="toggleBookDescription()">
+                        <span>О чём книга</span>
+                        <span class="expand-icon" id="bookExpandIcon">▼</span>
+                    </button>
+                    <div class="expandable-content" id="bookDescription">
+                        <p id="bookDescriptionText">Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Magazine Section -->
+            <div id="magazineSection" class="content-section">
+                <div class="content-header">
+                    <p class="content-tagline">Bookflix Monthly</p>
+                </div>
+                
+                <div class="magazine-container">
+                    <img id="magazineImage" src="magazine-22.png" alt="Журнал" class="magazine-image" onerror="this.src='magazine-22.png'">
+                    <div class="magazine-info">
+                        <h2 id="magazineTitle" class="magazine-title">Загрузка...</h2>
+                        <p id="magazineShortDescription" class="magazine-short">Загрузка...</p>
+                    </div>
+                    <p class="swipe-hint">← Свайпните для просмотра книги →</p>
+                </div>
+
+                <div class="expandable-section">
+                    <button class="expand-btn" onclick="toggleMagazineDescription()">
+                        <span>О чём журнал</span>
+                        <span class="expand-icon" id="magazineExpandIcon">▼</span>
+                    </button>
+                    <div class="expandable-content" id="magazineDescription">
+                        <p id="magazineFullDescription">Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation buttons -->
             <div class="button-group">
                 <button id="purchaseBtn" class="main-button">
                     Купить подписку

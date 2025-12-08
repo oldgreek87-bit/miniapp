@@ -25,7 +25,7 @@ header {
     text-align: center;
     padding: 30px 0;
     border-bottom: 1px solid #333;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .logo {
@@ -37,12 +37,6 @@ header {
     margin-right: auto;
 }
 
-h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
 .subtitle {
     color: #cccccc;
     font-size: 16px;
@@ -52,15 +46,132 @@ h1 {
 main {
     flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
 }
 
+/* Content Sections (Book/Magazine) */
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.content-tagline {
+    color: #cccccc;
+    font-size: 14px;
+    margin: 5px 0;
+    font-style: italic;
+}
+
+/* Book Container */
+.book-container, .magazine-container {
+    position: relative;
+    margin-bottom: 20px;
+    touch-action: pan-y;
+}
+
+.book-image, .magazine-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+.book-info, .magazine-info {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.book-title, .magazine-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.book-author {
+    color: #cccccc;
+    font-size: 16px;
+}
+
+.magazine-short {
+    color: #cccccc;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+/* Expandable Sections */
+.expandable-section {
+    margin-top: 20px;
+    border-top: 1px solid #333;
+    padding-top: 15px;
+}
+
+.expand-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.expand-btn:active {
+    background-color: #1a1a1a;
+}
+
+.expand-icon {
+    transition: transform 0.3s;
+    font-size: 12px;
+}
+
+.expand-icon.expanded {
+    transform: rotate(180deg);
+}
+
+.expandable-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding: 0 12px;
+}
+
+.expandable-content.expanded {
+    max-height: 2000px;
+    padding: 12px;
+}
+
+.expandable-content p {
+    color: #cccccc;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* Button Group */
 .button-group {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    margin-top: 30px;
 }
 
 .main-button {
@@ -80,10 +191,6 @@ main {
 .main-button:active {
     transform: scale(0.98);
     background-color: #f0f0f0;
-}
-
-.main-button:hover {
-    background-color: #f5f5f5;
 }
 
 /* Screen Management */
@@ -155,10 +262,6 @@ main {
 
 .plan-btn:active {
     transform: scale(0.98);
-    background-color: #2a2a2a;
-}
-
-.plan-btn:hover {
     background-color: #2a2a2a;
 }
 
@@ -328,10 +431,19 @@ main {
     font-size: 16px;
 }
 
+/* Swipe Indicator */
+.swipe-hint {
+    text-align: center;
+    color: #666;
+    font-size: 12px;
+    margin-top: 10px;
+    font-style: italic;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
-    h1 {
-        font-size: 28px;
+    .logo {
+        max-width: 150px;
     }
     
     .main-button {
@@ -341,6 +453,10 @@ main {
     
     .screen-header h2 {
         font-size: 20px;
+    }
+    
+    .book-image, .magazine-image {
+        max-width: 250px;
     }
 }
 

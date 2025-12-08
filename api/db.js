@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 
 // Use /tmp for Vercel serverless (writable directory)
-// For production, use PostgreSQL or Supabase instead
 const DB_PATH = process.env.DB_PATH || (process.env.VERCEL ? '/tmp/bookflix.db' : path.join(__dirname, '../data/bookflix.db'));
 
 // Ensure data directory exists
@@ -62,16 +61,37 @@ function initDB() {
             `);
 
             db.run(`
-                CREATE INDEX IF NOT EXISTS idx_user_id ON subscriptions(user_id);
+                CREATE TABLE IF NOT EXISTS book_of_month (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    month INTEGER NOT NULL,
+                    year INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    author TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    image_url TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(month, year)
+                )
             `);
 
             db.run(`
-                CREATE INDEX IF NOT EXISTS idx_payment_id ON payment_history(payment_id);
+                CREATE TABLE IF NOT EXISTS monthly_magazine (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    issue_number INTEGER UNIQUE NOT NULL,
+                    title TEXT NOT NULL,
+                    short_description TEXT NOT NULL,
+                    full_description TEXT NOT NULL,
+                    image_url TEXT,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
             `);
 
-            db.run(`
-                CREATE INDEX IF NOT EXISTS idx_messages_user_id ON messages(user_id);
-            `);
+            db.run(`CREATE INDEX IF NOT EXISTS idx_user_id ON subscriptions(user_id);`);
+            db.run(`CREATE INDEX IF NOT EXISTS idx_payment_id ON payment_history(payment_id);`);
+            db.run(`CREATE INDEX IF NOT EXISTS idx_messages_user_id ON messages(user_id);`);
+            db.run(`CREATE INDEX IF NOT EXISTS idx_book_month_year ON book_of_month(month, year);`);
         });
 
         resolve(db);

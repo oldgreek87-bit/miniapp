@@ -43,25 +43,111 @@
             margin: 0;
         }
 
-        .search-bar {
-            margin-bottom: 30px;
+        .tabs {
             display: flex;
             gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
         }
 
-        .search-bar input {
-            flex: 1;
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #cccccc;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
             background-color: #1a1a1a;
+            border: 2px solid #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            background-color: #000000;
             color: #ffffff;
             border: 2px solid #ffffff;
-            padding: 12px 16px;
+            padding: 12px;
             border-radius: 8px;
             font-size: 16px;
+            font-family: inherit;
         }
 
-        .search-bar input:focus {
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             background-color: #2a2a2a;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid #ffffff;
+            background-color: #ffffff;
+            color: #000000;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #0066ff;
+            color: #ffffff;
+            border-color: #0066ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0052cc;
         }
 
         .users-table {
@@ -80,8 +166,6 @@
         .users-table th {
             background-color: #1a1a1a;
             font-weight: 600;
-            position: sticky;
-            top: 0;
         }
 
         .users-table tr:hover {
@@ -102,15 +186,6 @@
             background-color: #333;
         }
 
-        .user-name {
-            font-weight: 600;
-        }
-
-        .user-id {
-            color: #999;
-            font-size: 12px;
-        }
-
         .status-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -129,138 +204,6 @@
             color: #ffffff;
         }
 
-        .status-cancelled {
-            background-color: #ffaa00;
-            color: #000000;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            border: 2px solid #ffffff;
-            background-color: #ffffff;
-            color: #000000;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #f0f0f0;
-        }
-
-        .btn-chat {
-            background-color: #0066ff;
-            color: #ffffff;
-            border-color: #0066ff;
-        }
-
-        .btn-chat:hover {
-            background-color: #0052cc;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: #1a1a1a;
-            border: 2px solid #ffffff;
-            border-radius: 12px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-content h2 {
-            margin-bottom: 20px;
-        }
-
-        .modal-content input,
-        .modal-content textarea,
-        .modal-content select {
-            width: 100%;
-            background-color: #000000;
-            color: #ffffff;
-            border: 2px solid #ffffff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            font-family: inherit;
-        }
-
-        .modal-content textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .modal-content input:focus,
-        .modal-content textarea:focus,
-        .modal-content select:focus {
-            outline: none;
-            background-color: #2a2a2a;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .chat-container {
-            max-height: 400px;
-            overflow-y: auto;
-            background-color: #000000;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .chat-message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .chat-message.user {
-            background-color: #1a1a1a;
-            text-align: right;
-        }
-
-        .chat-message.admin {
-            background-color: #0066ff;
-            text-align: left;
-        }
-
-        .chat-message-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 5px;
-        }
-
         .loading {
             text-align: center;
             padding: 40px;
@@ -275,6 +218,15 @@
             margin-bottom: 20px;
             color: #ff0000;
         }
+
+        .success {
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #00ff00;
+        }
     </style>
 </head>
 <body>
@@ -285,56 +237,93 @@
         </header>
 
         <div id="errorMessage" class="error" style="display: none;"></div>
+        <div id="successMessage" class="success" style="display: none;"></div>
 
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Поиск по ID пользователя или имени...">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('content')">Контент</button>
+            <button class="tab" onclick="switchTab('users')">Пользователи</button>
         </div>
 
-        <div id="usersContainer">
-            <div class="loading">Загрузка пользователей...</div>
-        </div>
-    </div>
+        <!-- Content Tab -->
+        <div id="contentTab" class="tab-content active">
+            <!-- Book of Month Form -->
+            <div class="form-section">
+                <h2>Книга месяца</h2>
+                <form id="bookForm" onsubmit="saveBook(event)">
+                    <div class="form-group">
+                        <label>Месяц</label>
+                        <select id="bookMonth" required>
+                            <option value="1">Январь</option>
+                            <option value="2">Февраль</option>
+                            <option value="3">Март</option>
+                            <option value="4">Апрель</option>
+                            <option value="5">Май</option>
+                            <option value="6">Июнь</option>
+                            <option value="7">Июль</option>
+                            <option value="8">Август</option>
+                            <option value="9">Сентябрь</option>
+                            <option value="10">Октябрь</option>
+                            <option value="11">Ноябрь</option>
+                            <option value="12" selected>Декабрь</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Год</label>
+                        <input type="number" id="bookYear" value="2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название книги</label>
+                        <input type="text" id="bookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Автор</label>
+                        <input type="text" id="bookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание (будет показано в "О чём книга")</label>
+                        <textarea id="bookDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>URL изображения (или путь к файлу, например: book-of-month.png)</label>
+                        <input type="text" id="bookImageUrl" placeholder="book-of-month.png">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить книгу</button>
+                </form>
+            </div>
 
-    <!-- Add Days Modal -->
-    <div id="addDaysModal" class="modal">
-        <div class="modal-content">
-            <h2>Добавить дни</h2>
-            <input type="number" id="daysInput" placeholder="Количество дней" min="1">
-            <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('addDaysModal')">Отмена</button>
-                <button class="btn" onclick="confirmAddDays()">Добавить</button>
+            <!-- Magazine Form -->
+            <div class="form-section">
+                <h2>Журнал</h2>
+                <form id="magazineForm" onsubmit="saveMagazine(event)">
+                    <div class="form-group">
+                        <label>Номер выпуска</label>
+                        <input type="number" id="magazineIssue" value="22" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" id="magazineTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Краткое описание (базовое описание)</label>
+                        <textarea id="magazineShortDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Полное описание (будет показано в "О чём журнал")</label>
+                        <textarea id="magazineFullDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>URL изображения (или путь к файлу, например: magazine-22.png)</label>
+                        <input type="text" id="magazineImageUrl" placeholder="magazine-22.png">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить журнал</button>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Set Subscription Modal -->
-    <div id="setSubscriptionModal" class="modal">
-        <div class="modal-content">
-            <h2>Изменить подписку</h2>
-            <select id="statusSelect">
-                <option value="active">Активна</option>
-                <option value="inactive">Неактивна</option>
-                <option value="cancelled">Отменена</option>
-            </select>
-            <input type="date" id="endDateInput" placeholder="Дата окончания (необязательно)">
-            <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('setSubscriptionModal')">Отмена</button>
-                <button class="btn" onclick="confirmSetSubscription()">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Modal -->
-    <div id="chatModal" class="modal">
-        <div class="modal-content">
-            <h2 id="chatUserName">Чат с пользователем</h2>
-            <div id="chatContainer" class="chat-container">
-                <div class="loading">Загрузка сообщений...</div>
-            </div>
-            <textarea id="chatMessageInput" placeholder="Введите сообщение..."></textarea>
-            <div class="modal-buttons">
-                <button class="btn" onclick="closeModal('chatModal')">Закрыть</button>
-                <button class="btn btn-chat" onclick="sendChatMessage()">Отправить</button>
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content">
+            <div id="usersContainer">
+                <div class="loading">Загрузка пользователей...</div>
             </div>
         </div>
     </div>
@@ -342,3 +331,4 @@
     <script src="admin.js"></script>
 </body>
 </html>
+

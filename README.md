@@ -1,94 +1,128 @@
 # Bookflix - Telegram Mini App
 
-A subscription-based book club Telegram Mini App with payment integration, subscription management, and automatic channel access control.
+Английский книжный клуб с подпиской, книгой месяца и журналом.
 
-## Quick Start
+## Особенности
 
-1. **Upload all files to your GitHub repository**
-2. **Set environment variables in Vercel Dashboard**
-3. **Deploy** - Vercel will auto-deploy from GitHub
+- ✅ **Книга месяца** - главная страница с текущей книгой
+- ✅ **Журнал** - Bookflix Monthly с разворачивающимся описанием
+- ✅ **Свайп** - переключение между книгой и журналом
+- ✅ **Подписка** - покупка подписки на 1 месяц
+- ✅ **Reading Room** - доступ к закрытому каналу
+- ✅ **Админ панель** - управление контентом и пользователями
 
-## Environment Variables
-
-Set these in Vercel Dashboard → Settings → Environment Variables:
-
-```
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-TELEGRAM_CHANNEL_ID=your_private_channel_id_here
-CHANNEL_INVITE_LINK=https://t.me/your_channel_invite_link
-TBANK_TERMINAL_KEY=your_tbank_terminal_key
-TBANK_SECRET_KEY=your_tbank_secret_key
-TBANK_API_URL=https://api.tbank.ru
-WEBAPP_URL=https://your-app.vercel.app
-ADMIN_SECRET_TOKEN=your_secure_random_token_here
-CRON_SECRET=your_cron_secret_token_here
-```
-
-## Project Structure
+## Структура проекта
 
 ```
 miniapp/
-├── index.html          # Main Mini App
-├── style.css           # Styling
-├── script.js           # Frontend logic
-├── admin.html          # Admin panel
-├── admin.js            # Admin logic
-├── package.json        # Dependencies
-├── vercel.json         # Vercel config
+├── index.html          # Главная страница (книга + журнал)
+├── style.css           # Стили
+├── script.js           # Логика фронтенда
+├── admin.html          # Админ панель
+├── admin.js            # Логика админ панели
+├── logo.svg            # Логотип
+├── book-of-month.png   # Изображение книги месяца
+├── magazine-22.png     # Изображение журнала
+├── package.json        # Зависимости
+├── vercel.json         # Конфигурация Vercel
 ├── api/
-│   ├── index.js        # Consolidated API (all endpoints)
-│   ├── db.js           # Database helper
-│   ├── payment.js      # Payment integration
-│   ├── subscription.js # Subscription logic
+│   ├── index.js        # Консолидированный API
+│   ├── db.js           # База данных
+│   ├── payment.js      # Платежи
+│   ├── subscription.js # Подписки
 │   └── telegram.js     # Telegram Bot API
 └── .gitignore
 ```
 
-## Features
+## Быстрый старт
 
-- ✅ Purchase Subscription with T-Bank integration
-- ✅ My Subscription status page
-- ✅ Reading Room access control
-- ✅ Admin panel for user management
-- ✅ Automatic channel management via cron
+1. **Установите зависимости:**
+   ```bash
+   npm install
+   ```
+
+2. **Настройте переменные окружения** (в Vercel Dashboard):
+   ```
+   TELEGRAM_BOT_TOKEN=your_token
+   TELEGRAM_CHANNEL_ID=your_channel_id
+   CHANNEL_INVITE_LINK=https://t.me/your_channel
+   ADMIN_SECRET_TOKEN=your_admin_token
+   CRON_SECRET=your_cron_secret
+   ```
+
+3. **Инициализируйте данные** (опционально):
+   ```bash
+   node init-december-data.js
+   ```
+
+4. **Загрузите в GitHub и деплойте на Vercel**
+
+## Админ панель
+
+Доступ: `https://your-app.vercel.app/admin.html?token=YOUR_ADMIN_TOKEN`
+
+### Управление контентом
+
+1. **Книга месяца:**
+   - Выберите месяц и год
+   - Введите название, автора, описание
+   - Укажите URL изображения (или путь к файлу)
+   - Сохраните
+
+2. **Журнал:**
+   - Введите номер выпуска
+   - Введите название, краткое и полное описание
+   - Укажите URL изображения
+   - Сохраните
+
+### Управление пользователями
+
+- Просмотр всех пользователей (включая неактивных)
+- Добавление дней к подписке
+- Просмотр информации о пользователях (имя, фото)
 
 ## API Endpoints
 
-All endpoints are handled by `api/index.js`:
-- `POST /api/create-payment`
-- `POST /api/confirm-payment`
-- `GET /api/subscription-status`
-- `GET /api/reading-room-access`
-- `POST /api/cancel-subscription`
-- `GET /api/admin/users`
-- `POST /api/admin/add-days`
-- `POST /api/admin/set-subscription`
-- `POST /api/cron` (daily channel management)
+### Публичные
+- `GET /api/book-of-month` - получить текущую книгу месяца
+- `GET /api/magazine/latest` - получить последний журнал
+- `POST /api/create-payment` - создать платёж
+- `POST /api/confirm-payment` - подтвердить платёж
+- `GET /api/subscription-status` - статус подписки
+- `GET /api/reading-room-access` - доступ к Reading Room
 
-## Deployment
+### Админ
+- `GET /api/admin/users` - список пользователей
+- `POST /api/admin/book-of-month` - обновить книгу месяца
+- `POST /api/admin/magazine` - обновить журнал
+- `POST /api/admin/add-days` - добавить дни подписки
 
-The project is configured for Vercel with:
-- **1 serverless function** (consolidated API) - stays under the 12 function limit
-- **Static files** served from root
-- **Cron job** runs daily at midnight UTC
+## База данных
 
-## Important Notes
+Таблицы:
+- `subscriptions` - подписки пользователей
+- `payment_history` - история платежей
+- `messages` - сообщения (для чата)
+- `book_of_month` - книги месяца
+- `monthly_magazine` - журналы
 
-1. **Database**: Uses SQLite in `/tmp` on Vercel (temporary). For production, migrate to PostgreSQL.
-2. **T-Bank Integration**: Currently mock implementation. Replace with real API calls in `api/payment.js`.
-3. **Function Limit**: All API endpoints consolidated into one function to stay under Vercel's 12 function limit.
+## Особенности интерфейса
 
-## Setup Telegram Bot
+- **Свайп** - проведите пальцем по книге/журналу для переключения
+- **Разворачивающиеся секции** - нажмите "О чём книга/журнал" для просмотра описания
+- **Адаптивный дизайн** - оптимизировано для мобильных устройств
 
-After deployment, configure bot menu button:
-```bash
-node setup-bot.js YOUR_BOT_TOKEN https://your-app.vercel.app
-```
+## Деплой
 
-Or use curl:
-```bash
-curl -X POST "https://api.telegram.org/bot<TOKEN>/setChatMenuButton" \
-  -H "Content-Type: application/json" \
-  -d '{"menu_button":{"type":"web_app","text":"Open Bookflix","web_app":{"url":"https://your-app.vercel.app"}}}'
-```
+1. Загрузите код в GitHub
+2. Подключите репозиторий к Vercel
+3. Установите переменные окружения
+4. Деплойте
+
+## Примечания
+
+- База данных использует SQLite в `/tmp` на Vercel (временная)
+- Для production рекомендуется PostgreSQL
+- T-Bank интеграция в тестовом режиме (mock)
+- Изображения должны быть загружены в репозиторий или доступны по URL
 

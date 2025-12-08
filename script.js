@@ -3,12 +3,17 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// API Base URL - Uses same origin as the app
+// API Base URL
 const API_BASE_URL = window.location.origin + '/api';
 
 // Get Telegram user data
 const user = tg.initDataUnsafe?.user;
 const userId = user?.id;
+
+// Swipe state
+let touchStartX = 0;
+let touchEndX = 0;
+let currentSection = 'book'; // 'book' or 'magazine'
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,11 +22,161 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Load book and magazine
+    loadBookOfMonth();
+    loadMagazine();
+
     // Setup button handlers
     document.getElementById('purchaseBtn').addEventListener('click', showPurchaseScreen);
     document.getElementById('subscriptionBtn').addEventListener('click', showSubscriptionScreen);
     document.getElementById('readingRoomBtn').addEventListener('click', showReadingRoomScreen);
+
+    // Setup swipe handlers
+    setupSwipe();
 });
+
+// Load Book of Month
+async function loadBookOfMonth() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/book-of-month`);
+        const data = await response.json();
+
+        if (data && data.title) {
+            document.getElementById('bookTitle').textContent = data.title;
+            document.getElementById('bookAuthor').textContent = data.author;
+            document.getElementById('bookDescriptionText').textContent = data.description;
+            
+            if (data.image_url) {
+                const img = document.getElementById('bookImage');
+                img.src = data.image_url;
+                img.onerror = function() {
+                    this.src = 'book-of-month.png';
+                };
+            }
+        } else {
+            // Default December 2025 book
+            document.getElementById('bookTitle').textContent = 'Двенадцать дней Рождества';
+            document.getElementById('bookAuthor').textContent = 'Сьюзан Стоукс-Чепмен';
+            document.getElementById('bookDescriptionText').textContent = `Друзья, декабрь — это наш месяц уютных традиций. Может, когда-нибудь мы и нарушим правило, но обычно в это время года хочется ровно того, что мы вам сейчас предложим.
+
+Читаем "Двенадцать дней Рождества" Сьюзан Стоукс-Чепмен — роман, который критики описывают как "Джейн Остин встречает Аббатство Даунтон".
+
+Снежная деревушка Мерривэйк. Регентская Англия. Позади — наполеоновские войны, впереди — самый ожидаемый бал сезона в поместье виконта. Но до Двенадцатой ночи ещё двенадцать дней, и каждый таит свою историю.
+
+Книга устроена изящно: каждая глава — почти отдельная история, вдохновлённая строчкой из рождественской песни (куропатка на грушевом дереве, барабанщик, волынщик...). Но все они переплетаются, герои перетекают из главы в главу, а к финалу все нити сходятся на грандиозном балу.
+
+Укутывайтесь в плед, заваривайте чай — и присоединяйтесь к нашей декабрьской традиции. Обещаем атмосферу теплее глинтвейна у камина.`;
+        }
+    } catch (error) {
+        console.error('Error loading book:', error);
+    }
+}
+
+// Load Magazine
+async function loadMagazine() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/magazine/latest`);
+        const data = await response.json();
+
+        if (data && data.title) {
+            document.getElementById('magazineTitle').textContent = data.title;
+            document.getElementById('magazineShortDescription').textContent = data.short_description;
+            document.getElementById('magazineFullDescription').textContent = data.full_description;
+            
+            if (data.image_url) {
+                const img = document.getElementById('magazineImage');
+                img.src = data.image_url;
+                img.onerror = function() {
+                    this.src = 'magazine-22.png';
+                };
+            }
+        } else {
+            // Default magazine
+            document.getElementById('magazineTitle').textContent = 'Bookflix Monthly';
+            document.getElementById('magazineShortDescription').textContent = 'Bookflix Monthly - это наш клубный журнал, в котором мы публикуем статьи о книгах, пишем забавные фанфики, сочиняем статьи от лица книжных персонажей в духе life style журналов, а также иногда публикуем серьёзные и полезные гайды о том, как искать и интерпретировать символы в книгах и прочие-прочие околокнижные истории.';
+            document.getElementById('magazineFullDescription').textContent = `Комната, которая помнит твой страх
+
+В ночь Хэллоуина выходит выпуск о том, что остаётся после прочитанного. О книгах, которые меняют детей навсегда. О частоте, которую слышат только они. О комнатах, где когда-то читали что-то, что нельзя было забыть.
+
+Внутри: архитектура страха, метафоры, которые оказались правдой, слова для сумерек, и паранормальное исследование того, что ты потерял, когда вырос.
+
+Кто-то наблюдает. Кто-то собирает эти моменты. Кто-то помнит всё за тебя. В этом выпуске редакторское кресло занял Наблюдатель — тот, кто стоял в углу твоей комнаты, когда ты читал под одеялом с фонариком.
+
+Bookflix n˚22: The Rooms Issue
+
+Путешествие по детским комнатам, где страшные книги читались впервые — и оставили след навсегда
+
+🎃 Журнал уже отправлен членам клуба с годовым абонементом в боте, проверяйте и читайте прямо сейчас. Если осмелитесь.`;
+        }
+    } catch (error) {
+        console.error('Error loading magazine:', error);
+    }
+}
+
+// Setup swipe functionality
+function setupSwipe() {
+    const bookContainer = document.querySelector('.book-container');
+    const magazineContainer = document.querySelector('.magazine-container');
+    
+    if (!bookContainer || !magazineContainer) return;
+
+    const containers = [bookContainer, magazineContainer];
+    
+    containers.forEach(container => {
+        container.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+    });
+}
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe left - show magazine
+            showMagazine();
+        } else {
+            // Swipe right - show book
+            showBook();
+        }
+    }
+}
+
+function showBook() {
+    currentSection = 'book';
+    document.getElementById('bookSection').classList.add('active');
+    document.getElementById('magazineSection').classList.remove('active');
+}
+
+function showMagazine() {
+    currentSection = 'magazine';
+    document.getElementById('magazineSection').classList.add('active');
+    document.getElementById('bookSection').classList.remove('active');
+}
+
+// Toggle descriptions
+function toggleBookDescription() {
+    const content = document.getElementById('bookDescription');
+    const icon = document.getElementById('bookExpandIcon');
+    
+    content.classList.toggle('expanded');
+    icon.classList.toggle('expanded');
+}
+
+function toggleMagazineDescription() {
+    const content = document.getElementById('magazineDescription');
+    const icon = document.getElementById('magazineExpandIcon');
+    
+    content.classList.toggle('expanded');
+    icon.classList.toggle('expanded');
+}
 
 // Navigation functions
 function showHome() {
@@ -49,19 +204,16 @@ function showPurchaseScreen() {
 }
 
 async function selectPlan(days) {
-    // Check if user ID is available
     if (!userId) {
         alert('Ошибка: Не удалось получить ID пользователя. Пожалуйста, откройте приложение из Telegram.');
-        console.error('User ID not available');
         return;
     }
 
     try {
-        // Show loading state
         const planButtons = document.querySelectorAll('.plan-btn');
         planButtons.forEach(btn => btn.disabled = true);
         
-        const amount = getPlanAmount(days);
+        const amount = 299;
         console.log('Creating payment:', { user_id: userId, days, amount });
 
         const response = await fetch(`${API_BASE_URL}/create-payment`, {
@@ -86,14 +238,9 @@ async function selectPlan(days) {
         const data = await response.json();
         console.log('Payment data:', data);
 
-        // Handle payment based on response
         if (data.payment_url) {
-            // For now, since T-Bank is mock, simulate successful payment
-            // In production, this would open the payment URL
-            alert(`Платёжная сессия создана!\n\nID платежа: ${data.payment_id}\nСумма: ${data.amount}₽\nДней: ${data.days}\n\nПримечание: Интеграция T-Bank в тестовом режиме.`);
+            alert(`Платёжная сессия создана!\n\nPayment ID: ${data.payment_id}\nСумма: ${data.amount}₽\nДней: ${data.days}\n\nПримечание: Интеграция T-Bank в тестовом режиме.`);
             
-            // Simulate payment confirmation (for testing)
-            // In production, remove this and use actual T-Bank webhook
             setTimeout(async () => {
                 try {
                     const confirmResponse = await fetch(`${API_BASE_URL}/confirm-payment`, {
@@ -115,63 +262,14 @@ async function selectPlan(days) {
                     console.error('Payment confirmation error:', err);
                 }
             }, 2000);
-        } else if (data.widget_html) {
-            // Show payment widget
-            document.getElementById('paymentWidget').innerHTML = data.widget_html;
-            document.getElementById('paymentWidget').classList.remove('hidden');
-        } else {
-            throw new Error('Invalid payment response: ' + JSON.stringify(data));
         }
     } catch (error) {
         console.error('Payment error details:', error);
         alert('Ошибка: ' + error.message + '\n\nПроверьте консоль браузера (F12) для деталей.');
     } finally {
-        // Re-enable buttons
         const planButtons = document.querySelectorAll('.plan-btn');
         planButtons.forEach(btn => btn.disabled = false);
     }
-}
-
-function getPlanAmount(days) {
-    // Only 1 month plan available
-    return 299;
-}
-
-async function pollPaymentStatus(paymentId) {
-    const maxAttempts = 60; // 5 minutes max
-    let attempts = 0;
-
-    const interval = setInterval(async () => {
-        attempts++;
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/confirm-payment`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    payment_id: paymentId,
-                    user_id: userId,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                clearInterval(interval);
-                showConfirmationScreen();
-            } else if (data.status === 'failed' || attempts >= maxAttempts) {
-                clearInterval(interval);
-                alert('Payment failed or timed out. Please try again.');
-            }
-        } catch (error) {
-            console.error('Payment status check error:', error);
-            if (attempts >= maxAttempts) {
-                clearInterval(interval);
-            }
-        }
-    }, 5000); // Check every 5 seconds
 }
 
 // My Subscription

@@ -6,14 +6,10 @@ const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 
 let bot = null;
 
-// Initialize bot if token is provided
 if (BOT_TOKEN) {
     bot = new TelegramBot(BOT_TOKEN, { polling: false });
 }
 
-/**
- * Remove user from channel
- */
 async function removeUserFromChannel(userId) {
     if (!bot || !CHANNEL_ID) {
         console.warn('Bot or channel not configured');
@@ -29,9 +25,6 @@ async function removeUserFromChannel(userId) {
     }
 }
 
-/**
- * Add user to channel
- */
 async function addUserToChannel(userId) {
     if (!bot || !CHANNEL_ID) {
         console.warn('Bot or channel not configured');
@@ -47,10 +40,6 @@ async function addUserToChannel(userId) {
     }
 }
 
-/**
- * Check and manage channel access for all users
- * This should be called by a cron job
- */
 async function checkAndManageChannelAccess() {
     const { getAllSubscriptions } = require('./subscription');
     const subscriptions = await getAllSubscriptions();
@@ -63,13 +52,11 @@ async function checkAndManageChannelAccess() {
         
         try {
             if (!hasAccess) {
-                // Remove from channel
                 const result = await removeUserFromChannel(sub.user_id);
                 if (result.success) {
                     removed++;
                 }
             } else {
-                // Ensure user is in channel
                 const result = await addUserToChannel(sub.user_id);
                 if (result.success) {
                     added++;
@@ -87,9 +74,6 @@ async function checkAndManageChannelAccess() {
     };
 }
 
-/**
- * Get channel invite link
- */
 async function getChannelInviteLink() {
     if (!bot || !CHANNEL_ID) {
         return null;
@@ -97,8 +81,6 @@ async function getChannelInviteLink() {
 
     try {
         const chat = await bot.getChat(CHANNEL_ID);
-        // Note: You may need to create an invite link manually and store it
-        // Telegram Bot API doesn't always provide invite links directly
         return process.env.CHANNEL_INVITE_LINK || `https://t.me/${chat.username || CHANNEL_ID}`;
     } catch (error) {
         console.error('Error getting channel link:', error);
@@ -106,9 +88,6 @@ async function getChannelInviteLink() {
     }
 }
 
-/**
- * Get user info from Telegram
- */
 async function getTelegramUserInfo(userId) {
     if (!bot) {
         return null;
@@ -138,9 +117,6 @@ async function getTelegramUserInfo(userId) {
     }
 }
 
-/**
- * Send message to user
- */
 async function sendMessageToUser(userId, text) {
     if (!bot) {
         return { success: false, error: 'Bot not configured' };

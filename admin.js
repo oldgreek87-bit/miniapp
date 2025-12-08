@@ -1,7 +1,7 @@
-// API Base URL - Uses same origin as admin panel
+// API Base URL
 const API_BASE_URL = window.location.origin + '/api';
 
-// Get admin token from URL or prompt
+// Get admin token
 function getAdminToken() {
     const urlParams = new URLSearchParams(window.location.search);
     let token = urlParams.get('token');
@@ -21,21 +21,130 @@ function getAdminToken() {
 }
 
 const ADMIN_TOKEN = getAdminToken();
-let currentUserId = null;
-let currentChatUserId = null;
-let allUsers = [];
-let chatInterval = null;
 
-// Load users on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadUsers();
+// Tab switching
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
-    // Setup search
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-        filterUsers(e.target.value);
-    });
-});
+    event.target.classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    
+    if (tabName === 'users') {
+        loadUsers();
+    } else if (tabName === 'content') {
+        loadCurrentContent();
+    }
+}
 
+// Load current book and magazine
+async function loadCurrentContent() {
+    try {
+        // Load current book
+        const bookResponse = await fetch(`${API_BASE_URL}/book-of-month`);
+        const book = await bookResponse.json();
+        
+        if (book) {
+            document.getElementById('bookMonth').value = book.month;
+            document.getElementById('bookYear').value = book.year;
+            document.getElementById('bookTitle').value = book.title;
+            document.getElementById('bookAuthor').value = book.author;
+            document.getElementById('bookDescription').value = book.description;
+            document.getElementById('bookImageUrl').value = book.image_url || '';
+        }
+
+        // Load current magazine
+        const magazineResponse = await fetch(`${API_BASE_URL}/magazine/latest`);
+        const magazine = await magazineResponse.json();
+        
+        if (magazine) {
+            document.getElementById('magazineIssue').value = magazine.issue_number;
+            document.getElementById('magazineTitle').value = magazine.title;
+            document.getElementById('magazineShortDescription').value = magazine.short_description;
+            document.getElementById('magazineFullDescription').value = magazine.full_description;
+            document.getElementById('magazineImageUrl').value = magazine.image_url || '';
+        }
+    } catch (error) {
+        console.error('Error loading content:', error);
+    }
+}
+
+// Save book
+async function saveBook(event) {
+    event.preventDefault();
+    
+    const bookData = {
+        month: parseInt(document.getElementById('bookMonth').value),
+        year: parseInt(document.getElementById('bookYear').value),
+        title: document.getElementById('bookTitle').value,
+        author: document.getElementById('bookAuthor').value,
+        description: document.getElementById('bookDescription').value,
+        image_url: document.getElementById('bookImageUrl').value || null
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/book-of-month`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Token': ADMIN_TOKEN
+            },
+            body: JSON.stringify({
+                ...bookData,
+                admin_token: ADMIN_TOKEN
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось сохранить книгу');
+        }
+
+        showSuccess('Книга успешно сохранена!');
+    } catch (error) {
+        showError('Ошибка: ' + error.message);
+    }
+}
+
+// Save magazine
+async function saveMagazine(event) {
+    event.preventDefault();
+    
+    const magazineData = {
+        issue_number: parseInt(document.getElementById('magazineIssue').value),
+        title: document.getElementById('magazineTitle').value,
+        short_description: document.getElementById('magazineShortDescription').value,
+        full_description: document.getElementById('magazineFullDescription').value,
+        image_url: document.getElementById('magazineImageUrl').value || null
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/magazine`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Token': ADMIN_TOKEN
+            },
+            body: JSON.stringify({
+                ...magazineData,
+                admin_token: ADMIN_TOKEN
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось сохранить журнал');
+        }
+
+        showSuccess('Журнал успешно сохранён!');
+    } catch (error) {
+        showError('Ошибка: ' + error.message);
+    }
+}
+
+// Load users
 async function loadUsers() {
     try {
         const response = await fetch(`${API_BASE_URL}/admin/users?admin_token=${ADMIN_TOKEN}`);
@@ -45,8 +154,7 @@ async function loadUsers() {
             throw new Error(data.error || 'Не удалось загрузить пользователей');
         }
         
-        allUsers = data.users;
-        renderUsers(allUsers);
+        renderUsers(data.users);
     } catch (error) {
         showError(error.message);
         document.getElementById('usersContainer').innerHTML = `
@@ -89,8 +197,8 @@ function renderUsers(users) {
                                 ${user.userpic ? `<img src="${user.userpic}" alt="${userName}" class="user-avatar" onerror="this.style.display='none'">` : '<div class="user-avatar"></div>'}
                                 <div>
                                     <div class="user-name">${userDisplay}</div>
-                                    ${user.username ? `<div class="user-id">@${user.username}</div>` : ''}
-                                    <div class="user-id">ID: ${user.user_id}</div>
+                                    ${user.username ? `<div style="color: #999; font-size: 12px;">@${user.username}</div>` : ''}
+                                    <div style="color: #999; font-size: 12px;">ID: ${user.user_id}</div>
                                 </div>
                             </div>
                         </td>
@@ -103,11 +211,7 @@ function renderUsers(users) {
                         <td>${user.subscription_end ? new Date(user.subscription_end).toLocaleDateString('ru-RU') : 'Н/Д'}</td>
                         <td>${user.days_remaining}</td>
                         <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-chat" onclick="openChatModal(${user.user_id}, '${userDisplay.replace(/'/g, "\\'")}')">Чат</button>
-                                <button class="btn" onclick="openAddDaysModal(${user.user_id})">Добавить дни</button>
-                                <button class="btn" onclick="openSetSubscriptionModal(${user.user_id})">Изменить статус</button>
-                            </div>
+                            <button class="btn" onclick="addDaysToUser(${user.user_id})">Добавить дни</button>
                         </td>
                     </tr>
                 `;
@@ -119,166 +223,12 @@ function renderUsers(users) {
     container.innerHTML = table;
 }
 
-function filterUsers(searchTerm) {
-    if (!searchTerm) {
-        renderUsers(allUsers);
+async function addDaysToUser(userId) {
+    const days = prompt('Введите количество дней:');
+    if (!days || isNaN(days) || parseInt(days) < 1) {
         return;
     }
-    
-    const term = searchTerm.toLowerCase();
-    const filtered = allUsers.filter(user => {
-        const userName = (user.first_name || '').toLowerCase();
-        const userLastName = (user.last_name || '').toLowerCase();
-        const username = (user.username || '').toLowerCase();
-        const userId = user.user_id.toString();
-        
-        return userName.includes(term) || 
-               userLastName.includes(term) || 
-               username.includes(term) || 
-               userId.includes(term);
-    });
-    
-    renderUsers(filtered);
-}
 
-function openAddDaysModal(userId) {
-    currentUserId = userId;
-    document.getElementById('daysInput').value = '';
-    document.getElementById('addDaysModal').classList.add('active');
-}
-
-function openSetSubscriptionModal(userId) {
-    currentUserId = userId;
-    const user = allUsers.find(u => u.user_id === userId);
-    if (user) {
-        document.getElementById('statusSelect').value = user.status;
-        if (user.subscription_end) {
-            const date = new Date(user.subscription_end);
-            document.getElementById('endDateInput').value = date.toISOString().split('T')[0];
-        } else {
-            document.getElementById('endDateInput').value = '';
-        }
-    }
-    document.getElementById('setSubscriptionModal').classList.add('active');
-}
-
-function openChatModal(userId, userName) {
-    currentChatUserId = userId;
-    document.getElementById('chatUserName').textContent = `Чат с ${userName}`;
-    document.getElementById('chatModal').classList.add('active');
-    loadChatMessages();
-    
-    // Auto-refresh chat every 3 seconds
-    if (chatInterval) clearInterval(chatInterval);
-    chatInterval = setInterval(loadChatMessages, 3000);
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-    currentUserId = null;
-    
-    if (modalId === 'chatModal') {
-        currentChatUserId = null;
-        if (chatInterval) {
-            clearInterval(chatInterval);
-            chatInterval = null;
-        }
-    }
-}
-
-async function loadChatMessages() {
-    if (!currentChatUserId) return;
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/admin/messages?user_id=${currentChatUserId}&admin_token=${ADMIN_TOKEN}`);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Не удалось загрузить сообщения');
-        }
-        
-        renderChatMessages(data.messages || []);
-    } catch (error) {
-        console.error('Error loading messages:', error);
-    }
-}
-
-function renderChatMessages(messages) {
-    const container = document.getElementById('chatContainer');
-    
-    if (messages.length === 0) {
-        container.innerHTML = '<div class="loading">Нет сообщений</div>';
-        return;
-    }
-    
-    container.innerHTML = messages.map(msg => {
-        const date = new Date(msg.created_at);
-        const timeStr = date.toLocaleString('ru-RU');
-        const isUser = msg.is_from_user === 1;
-        
-        return `
-            <div class="chat-message ${isUser ? 'user' : 'admin'}">
-                <div>${escapeHtml(msg.message_text)}</div>
-                <div class="chat-message-time">${timeStr}</div>
-            </div>
-        `;
-    }).join('');
-    
-    // Scroll to bottom
-    container.scrollTop = container.scrollHeight;
-}
-
-async function sendChatMessage() {
-    const messageText = document.getElementById('chatMessageInput').value.trim();
-    
-    if (!messageText || !currentChatUserId) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/admin/send-message`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Token': ADMIN_TOKEN
-            },
-            body: JSON.stringify({
-                user_id: currentChatUserId,
-                message_text: messageText,
-                admin_token: ADMIN_TOKEN
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Не удалось отправить сообщение');
-        }
-        
-        // Clear input
-        document.getElementById('chatMessageInput').value = '';
-        
-        // Reload messages
-        loadChatMessages();
-    } catch (error) {
-        alert('Ошибка: ' + error.message);
-    }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-async function confirmAddDays() {
-    const days = parseInt(document.getElementById('daysInput').value);
-    
-    if (!days || days < 1) {
-        alert('Пожалуйста, введите корректное количество дней');
-        return;
-    }
-    
     try {
         const response = await fetch(`${API_BASE_URL}/admin/add-days`, {
             method: 'POST',
@@ -287,53 +237,19 @@ async function confirmAddDays() {
                 'X-Admin-Token': ADMIN_TOKEN
             },
             body: JSON.stringify({
-                user_id: currentUserId,
-                days: days,
+                user_id: userId,
+                days: parseInt(days),
                 admin_token: ADMIN_TOKEN
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Не удалось добавить дни');
         }
-        
-        alert('Дни успешно добавлены!');
-        closeModal('addDaysModal');
-        loadUsers();
-    } catch (error) {
-        alert('Ошибка: ' + error.message);
-    }
-}
 
-async function confirmSetSubscription() {
-    const status = document.getElementById('statusSelect').value;
-    const endDate = document.getElementById('endDateInput').value;
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/admin/set-subscription`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Token': ADMIN_TOKEN
-            },
-            body: JSON.stringify({
-                user_id: currentUserId,
-                status: status,
-                end_date: endDate || null,
-                admin_token: ADMIN_TOKEN
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Не удалось изменить подписку');
-        }
-        
-        alert('Подписка успешно обновлена!');
-        closeModal('setSubscriptionModal');
+        alert('Дни успешно добавлены!');
         loadUsers();
     } catch (error) {
         alert('Ошибка: ' + error.message);
@@ -349,15 +265,17 @@ function showError(message) {
     }, 5000);
 }
 
-// Allow sending message with Enter key
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 3000);
+}
+
+// Load content on page load
 document.addEventListener('DOMContentLoaded', () => {
-    const chatInput = document.getElementById('chatMessageInput');
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendChatMessage();
-            }
-        });
-    }
+    loadCurrentContent();
 });
+

@@ -1,8 +1,8 @@
 // Consolidated API handler - routes all API requests
 const { createPayment } = require('./payment');
-const { runQuery, getQuery } = require('./db');
+const { runQuery, getQuery, allQuery } = require('./db');
 const { getSubscriptionStatus, activateSubscription, cancelSubscription, hasActiveSubscription } = require('./subscription');
-const { getChannelInviteLink } = require('./telegram');
+const { getChannelInviteLink, getTelegramUserInfo, sendMessageToUser } = require('./telegram');
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -15,12 +15,12 @@ module.exports = async (req, res) => {
     }
 
     // Get path from URL - handle both /api/path and /path formats
-    let path = req.url.split('?')[0]; // Remove query string
-    // If path starts with /api, remove it (Vercel routing)
+    let path = req.url.split('?')[0];
+    const originalPath = path;
+    
     if (path.startsWith('/api')) {
         path = path.substring(4) || '/';
     }
-    // Normalize path
     if (!path.startsWith('/')) {
         path = '/' + path;
     }
@@ -34,6 +34,36 @@ module.exports = async (req, res) => {
                 timestamp: new Date().toISOString(),
                 service: 'Bookflix API'
             });
+        }
+
+        // Get current book of month
+        if (path === '/book-of-month' && method === 'GET') {
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            
+            const book = await getQuery(
+                'SELECT * FROM book_of_month WHERE month = ? AND year = ? ORDER BY updated_at DESC LIMIT 1',
+                [month, year]
+            );
+
+            if (!book) {
+                // Try to get latest book
+                const latestBook = await getQuery(
+                    'SELECT * FROM book_of_month ORDER BY year DESC, month DESC LIMIT 1'
+                );
+                return res.json(latestBook || null);
+            }
+
+            return res.json(book);
+        }
+
+        // Get latest magazine
+        if (path === '/magazine/latest' && method === 'GET') {
+            const magazine = await getQuery(
+                'SELECT * FROM monthly_magazine ORDER BY issue_number DESC LIMIT 1'
+            );
+            return res.json(magazine || null);
         }
 
         // Create payment
@@ -74,11 +104,8 @@ module.exports = async (req, res) => {
                 return res.status(404).json({ error: 'Payment not found' });
             }
 
-            // For testing: Auto-confirm pending payments
-            // In production, check with T-Bank API first
             if (payment.status === 'pending') {
                 try {
-                    // Activate subscription
                     await activateSubscription(parseInt(user_id), payment.days, payment_id);
                     await runQuery(
                         `UPDATE payment_history 
@@ -161,20 +188,14 @@ module.exports = async (req, res) => {
             }
 
             const { getAllSubscriptions } = require('./subscription');
-            const { getTelegramUserInfo } = require('./telegram');
             const subscriptions = await getAllSubscriptions();
 
-            // Get all unique user IDs (including those without subscriptions)
-            const allUserIds = new Set(subscriptions.map(s => s.user_id));
-            
-            // Get user info from Telegram for all users
             const usersWithInfo = await Promise.all(
-                Array.from(allUserIds).map(async (userId) => {
-                    const sub = subscriptions.find(s => s.user_id === userId);
-                    const userInfo = await getTelegramUserInfo(userId);
+                subscriptions.map(async (sub) => {
+                    const userInfo = await getTelegramUserInfo(sub.user_id);
                     
                     let daysRemaining = 0;
-                    if (sub && sub.subscription_end && sub.subscription_status === 'active') {
+                    if (sub.subscription_end && sub.subscription_status === 'active') {
                         const endDate = new Date(sub.subscription_end);
                         const now = new Date();
                         const diffTime = endDate - now;
@@ -183,21 +204,63 @@ module.exports = async (req, res) => {
                     }
 
                     return {
-                        user_id: userId,
+                        user_id: sub.user_id,
                         username: userInfo?.username || null,
                         first_name: userInfo?.first_name || null,
                         last_name: userInfo?.last_name || null,
                         userpic: userInfo?.photo_url || null,
-                        status: sub?.subscription_status || 'inactive',
-                        subscription_start: sub?.subscription_start || null,
-                        subscription_end: sub?.subscription_end || null,
+                        status: sub.subscription_status || 'inactive',
+                        subscription_start: sub.subscription_start,
+                        subscription_end: sub.subscription_end,
                         days_remaining: daysRemaining,
-                        created_at: sub?.created_at || null
+                        created_at: sub.created_at
                     };
                 })
             );
 
             return res.json({ users: usersWithInfo });
+        }
+
+        // Admin: Update book of month
+        if (path === '/admin/book-of-month' && method === 'POST') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { month, year, title, author, description, image_url } = req.body;
+            if (!month || !year || !title || !author || !description) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+
+            await runQuery(
+                `INSERT OR REPLACE INTO book_of_month 
+                 (month, year, title, author, description, image_url, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+                [month, year, title, author, description, image_url || null]
+            );
+
+            return res.json({ success: true });
+        }
+
+        // Admin: Update magazine
+        if (path === '/admin/magazine' && method === 'POST') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { issue_number, title, short_description, full_description, image_url } = req.body;
+            if (!issue_number || !title || !short_description || !full_description) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+
+            await runQuery(
+                `INSERT OR REPLACE INTO monthly_magazine 
+                 (issue_number, title, short_description, full_description, image_url, updated_at)
+                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+                [issue_number, title, short_description, full_description, image_url || null]
+            );
+
+            return res.json({ success: true });
         }
 
         // Admin: Add days
@@ -230,73 +293,6 @@ module.exports = async (req, res) => {
             const { setSubscription } = require('./subscription');
             const result = await setSubscription(parseInt(user_id), status, end_date);
             return res.json({ success: true, ...result });
-        }
-
-        // Admin: Get messages for a user
-        if (path === '/admin/messages' && method === 'GET') {
-            if (!isAdmin) {
-                return res.status(401).json({ error: 'Unauthorized' });
-            }
-
-            const { user_id } = req.query;
-            if (!user_id) {
-                return res.status(400).json({ error: 'Missing user_id' });
-            }
-
-            const { allQuery } = require('./db');
-            const messages = await allQuery(
-                'SELECT * FROM messages WHERE user_id = ? ORDER BY created_at ASC',
-                [parseInt(user_id)]
-            );
-
-            return res.json({ messages });
-        }
-
-        // Admin: Send message to user
-        if (path === '/admin/send-message' && method === 'POST') {
-            if (!isAdmin) {
-                return res.status(401).json({ error: 'Unauthorized' });
-            }
-
-            const { user_id, message_text } = req.body;
-            if (!user_id || !message_text) {
-                return res.status(400).json({ error: 'Missing user_id or message_text' });
-            }
-
-            const { sendMessageToUser } = require('./telegram');
-            const { runQuery } = require('./db');
-
-            // Send message via Telegram
-            const sendResult = await sendMessageToUser(parseInt(user_id), message_text);
-
-            if (sendResult.success) {
-                // Save message to database
-                await runQuery(
-                    'INSERT INTO messages (user_id, message_text, is_from_user, created_at) VALUES (?, ?, 0, CURRENT_TIMESTAMP)',
-                    [parseInt(user_id), message_text]
-                );
-            }
-
-            return res.json(sendResult);
-        }
-
-        // Webhook: Receive message from user (to be called by Telegram bot)
-        if (path === '/webhook/message' && method === 'POST') {
-            const { message } = req.body;
-            
-            if (message && message.from && message.text) {
-                const { runQuery } = require('./db');
-                
-                // Save user message to database
-                await runQuery(
-                    'INSERT INTO messages (user_id, message_text, is_from_user, created_at) VALUES (?, ?, 1, CURRENT_TIMESTAMP)',
-                    [message.from.id, message.text]
-                );
-
-                return res.json({ success: true });
-            }
-
-            return res.status(400).json({ error: 'Invalid message format' });
         }
 
         // Cron job
