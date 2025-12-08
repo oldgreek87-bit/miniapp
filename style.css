@@ -76,13 +76,7 @@ main {
     margin: 0 0 12px 0;
     line-height: 1.2;
     padding: 0 10px;
-}
-
-.book-badge {
-    color: #b3b3b3;
-    font-size: 12px;
-    letter-spacing: 0.3px;
-    margin-bottom: 12px;
+    letter-spacing: 0.2px;
 }
 
 .book-meta {
@@ -90,20 +84,29 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-bottom: 12px;
+    gap: 4px;
+    margin-bottom: 10px;
 }
 
-.meta-item {
+.book-badge {
+    color: #b3b3b3;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+}
+
+.meta-author {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.meta-publish {
     color: #b3b3b3;
     font-size: 13px;
-    font-weight: 400;
     line-height: 1.4;
-}
-
-.meta-separator {
-    color: #666666;
-    font-size: 13px;
+    text-align: center;
 }
 
 .book-actions {
@@ -112,7 +115,7 @@ main {
     gap: 18px;
     width: 100%;
     max-width: 360px;
-    margin: 8px auto 12px auto;
+    margin: -8px auto 10px auto; /* pulled up closer to title/info */
 }
 
 .action-icon-btn {
@@ -246,8 +249,8 @@ main {
 /* Book description preview */
 .book-description-preview {
     position: relative;
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -280,13 +283,13 @@ main {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(20,20,20,0.7);
+    background: rgba(22,22,22,0.7);
     backdrop-filter: blur(12px);
     border-top: 1px solid rgba(255,255,255,0.1);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 10px 0;
+    padding: 18px 0 14px 0;
     z-index: 1000;
     height: 70px;
 }
