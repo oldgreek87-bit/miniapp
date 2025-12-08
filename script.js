@@ -57,7 +57,7 @@ async function loadBookOfMonth() {
         const book = data && data.title ? data : null;
 
         if (book) {
-            bookTitleEl.textContent = book.title_en || book.title || '';
+            bookTitleEl.textContent = book.title_en || book.title || '—';
             bookAuthorEl.textContent = book.author || '—';
 
             const dateText = book.published_at ? formatDate(book.published_at) : '—';
@@ -83,6 +83,7 @@ async function loadBookOfMonth() {
             }
         } else {
             // Default fallback without overriding title
+            bookTitleEl.textContent = 'The Twelve Days of Christmas';
             bookAuthorEl.textContent = 'Сьюзан Стоукс-Чепмен';
             bookDateEl.textContent = 'Декабрь 2025';
             bookPagesEl.textContent = '320 стр.';
