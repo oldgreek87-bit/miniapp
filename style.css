@@ -9,12 +9,12 @@ body {
     background-color: #000000;
     color: #ffffff;
     min-height: 100vh;
-    padding: 20px;
     overflow-x: hidden;
+    padding-bottom: 80px; /* Space for tab bar */
 }
 
 .container {
-    max-width: 600px;
+    max-width: 100%;
     margin: 0 auto;
     min-height: 100vh;
     display: flex;
@@ -22,32 +22,22 @@ body {
 }
 
 header {
-    text-align: center;
-    padding: 30px 0;
-    border-bottom: 1px solid #333;
-    margin-bottom: 30px;
+    text-align: left;
+    padding: 20px 20px 10px 20px;
 }
 
 .logo {
-    max-width: 200px;
+    max-width: 120px;
     height: auto;
-    margin-bottom: 15px;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.subtitle {
-    color: #cccccc;
-    font-size: 16px;
-    text-transform: lowercase;
 }
 
 main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    padding: 0 20px;
+    padding-bottom: 20px;
 }
 
 /* Content Sections (Book/Magazine) */
@@ -59,63 +49,130 @@ main {
     display: block;
 }
 
-.content-header {
-    text-align: center;
-    margin-bottom: 20px;
+/* Book Hero Section */
+.book-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0 20px 0;
 }
 
-.content-tagline {
-    color: #cccccc;
-    font-size: 14px;
-    margin: 5px 0;
-    font-style: italic;
-}
-
-/* Book Container */
-.book-container, .magazine-container {
-    position: relative;
-    margin-bottom: 20px;
-    touch-action: pan-y;
-}
-
-.book-image, .magazine-image {
+.book-cover {
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
     height: auto;
     display: block;
-    margin: 0 auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    margin: 0 auto 24px auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
 }
 
-.book-info, .magazine-info {
+.book-title-main {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
     text-align: center;
-    margin-top: 15px;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    padding: 0 10px;
 }
 
-.book-title, .magazine-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 8px;
+.book-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
 }
 
-.book-author {
-    color: #cccccc;
-    font-size: 16px;
+.meta-item {
+    color: #aaaaaa;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.meta-separator {
+    color: #666666;
+    font-size: 13px;
+}
+
+.book-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+}
+
+.action-icon-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    opacity: 0.9;
+}
+
+.action-icon-btn:active {
+    opacity: 0.6;
+}
+
+.action-icon-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Magazine Hero Section */
+.magazine-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0 20px 0;
+}
+
+.magazine-cover {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    display: block;
+    margin: 0 auto 24px auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+}
+
+.magazine-title-main {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    padding: 0 10px;
 }
 
 .magazine-short {
-    color: #cccccc;
+    color: #aaaaaa;
     font-size: 14px;
     line-height: 1.5;
-    margin-top: 10px;
+    text-align: center;
+    padding: 0 20px;
+    max-width: 400px;
+}
+
+.tab-content-wrapper {
+    padding: 20px 0;
 }
 
 /* Expandable Sections */
 .expandable-section {
-    margin-top: 20px;
+    margin-top: 24px;
     border-top: 1px solid #333;
-    padding-top: 15px;
+    padding-top: 16px;
 }
 
 .expand-btn {
@@ -124,22 +181,23 @@ main {
     border: none;
     color: #ffffff;
     font-size: 16px;
-    font-weight: 600;
-    padding: 12px;
+    font-weight: 500;
+    padding: 12px 0;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: background-color 0.2s;
+    transition: opacity 0.2s;
 }
 
 .expand-btn:active {
-    background-color: #1a1a1a;
+    opacity: 0.7;
 }
 
 .expand-icon {
-    transition: transform 0.3s;
-    font-size: 12px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 12px;
 }
 
 .expand-icon.expanded {
@@ -150,30 +208,74 @@ main {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
-    padding: 0 12px;
+    padding: 0;
 }
 
 .expandable-content.expanded {
     max-height: 2000px;
-    padding: 12px;
+    padding: 16px 0 0 0;
 }
 
 .expandable-content p {
     color: #cccccc;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.7;
     white-space: pre-line;
 }
 
-/* Button Group */
-.button-group {
-    width: 100%;
+/* Bottom Tab Bar */
+.tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #000000;
+    border-top: 1px solid #333;
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 30px;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0;
+    z-index: 1000;
+    height: 70px;
 }
 
+.tab-item {
+    background: none;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px 16px;
+    transition: opacity 0.2s;
+    opacity: 0.6;
+    flex: 1;
+}
+
+.tab-item svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.tab-item span {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: none;
+}
+
+.tab-item.active {
+    opacity: 1;
+}
+
+.tab-item:active {
+    opacity: 0.8;
+}
+
+/* Main Button (used in screens) */
 .main-button {
     background-color: #ffffff;
     color: #000000;
@@ -199,6 +301,7 @@ main {
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
+    padding-bottom: 80px; /* Space for tab bar */
 }
 
 .screen.hidden {
@@ -209,7 +312,7 @@ main {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px 0;
+    padding: 20px;
     border-bottom: 1px solid #333;
     margin-bottom: 30px;
 }
@@ -227,16 +330,17 @@ main {
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 6px;
-    transition: background-color 0.2s;
+    transition: opacity 0.2s;
+    opacity: 0.9;
 }
 
 .back-btn:active {
-    background-color: #333;
+    opacity: 0.6;
 }
 
 .screen-content {
     flex: 1;
-    padding: 20px 0;
+    padding: 20px;
 }
 
 /* Purchase Screen */
@@ -443,7 +547,19 @@ main {
 /* Responsive */
 @media (max-width: 480px) {
     .logo {
-        max-width: 150px;
+        max-width: 100px;
+    }
+    
+    .book-cover, .magazine-cover {
+        max-width: 240px;
+    }
+    
+    .book-title-main {
+        font-size: 24px;
+    }
+    
+    .magazine-title-main {
+        font-size: 20px;
     }
     
     .main-button {
@@ -455,8 +571,13 @@ main {
         font-size: 20px;
     }
     
-    .book-image, .magazine-image {
-        max-width: 250px;
+    .tab-item span {
+        font-size: 10px;
+    }
+    
+    .tab-item svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
