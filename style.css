@@ -667,8 +667,8 @@ main {
     align-items: center;
     text-align: center;
     background: linear-gradient(180deg, #1A1A1A, #242424);
-    width: 92%;
-    max-width: 92%;
+    width: 96%;
+    max-width: 96%;
     margin: 0 auto 20px auto;
     padding: 28px 20px;
     border-radius: 24px;
@@ -872,16 +872,6 @@ main {
     border-radius: 12px;
 }
 
-/* Subscription Status */
-.subscription-card {
-    background-color: #1a1a1a;
-    border: 2px solid #ffffff;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
-}
-
-.status-badge {
     display: inline-block;
     padding: 8px 16px;
     border-radius: 20px;
