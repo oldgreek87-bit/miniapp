@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         subscriptionBtn.addEventListener('click', () => window.location.href = 'subscription.html');
     }
 
+    const navSubscription = document.getElementById('nav-subscription');
+    if (navSubscription) {
+        navSubscription.addEventListener('click', () => window.location.href = 'subscription.html');
+    }
+
     const readingRoomBtn = document.getElementById('readingRoomBtn');
     if (readingRoomBtn) {
         readingRoomBtn.addEventListener('click', showReadingRoomScreen);

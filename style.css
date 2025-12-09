@@ -455,9 +455,9 @@ main {
     padding: 16px;
     box-shadow: 0 16px 48px rgba(0,0,0,0.45);
     border: none !important;
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    width: 92%;
+    max-width: 92%;
+    margin: 0 auto 20px auto;
 }
 
 .status-hero {
@@ -666,7 +666,12 @@ main {
     gap: 10px;
     align-items: center;
     text-align: center;
-    background: linear-gradient(150deg, #121215, #0f0f12 50%, #1a1b25 100%);
+    background: linear-gradient(180deg, #1A1A1A, #242424);
+    width: 92%;
+    max-width: 92%;
+    margin: 0 auto 20px auto;
+    padding: 28px 20px;
+    border-radius: 24px;
 }
 
 .plans-grid {
@@ -681,38 +686,54 @@ main {
     }
 }
 
-.plan-top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-}
-
-.plan-name {
-    font-size: 14px;
-    letter-spacing: 0.4px;
-    color: #d1d5db;
-}
-
-.plan-price {
-    font-size: 20px;
+.plan-title {
+    font-size: 18px;
+    text-transform: uppercase;
     font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
 }
 
 .plan-subtitle {
-    color: #cbd5e1;
-    font-size: 13px;
-    margin: 4px 0 0 0;
+    font-size: 15px;
+    color: #CCCCCC;
+    text-align: center;
+    margin-bottom: 8px;
 }
 
-.plan-note {
-    color: #9ca3af;
-    font-size: 13px;
-    line-height: 1.45;
+.plan-desc {
+    font-size: 15px;
+    color: #B5B5B5;
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.plan-price {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+
+.plan-cta {
+    width: 70%;
+    height: 48px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 40px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #DDDDDD 100%);
+    color: #000;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 48px;
+    text-align: center;
+    border: none;
 }
 
 .plan-card.highlight {
-    background: linear-gradient(155deg, #161621, #111018 50%, #1f2335 100%);
+    background: linear-gradient(180deg, #1f1f25, #2a2a35);
     box-shadow: 0 20px 50px rgba(0,0,0,0.55);
 }
 
