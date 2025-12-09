@@ -11,40 +11,51 @@
     <div class="subscription-container">
         <header class="subscription-header">
             <img src="logo.svg" alt="Bookflix" class="subscription-logo">
-            <div class="subscription-title-block">
-                <h1 class="subscription-page-title">Подписка</h1>
-                <p class="subscription-page-sub">Доступ к клубу, журналу и Reading Room</p>
+            <div class="subscription-user">
+                <div class="user-avatar" id="subscriptionAvatar"></div>
             </div>
         </header>
 
         <main class="subscription-main">
-            <!-- Доступ к Reading Room -->
+            <!-- Карточка статуса/доступа -->
             <section class="subscription-section">
-                <div class="subscription-card access-card">
-                    <div class="access-left">
-                        <div id="accessStatus" class="access-title">Подписка не активна</div>
-                        <div class="access-sub">Reading Room и материалы клуба</div>
+                <div class="subscription-card status-hero" id="statusHero">
+                    <div class="hero-text">
+                        <div id="heroTitle" class="hero-title">Подписка не активна</div>
+                        <div id="heroSubtitle" class="hero-sub">Доступ в Reading Room закрыт</div>
                     </div>
-                    <button class="sub-btn primary large" id="accessActionBtn">Купить подписку</button>
+                    <button class="sub-btn hero-btn" id="heroActionBtn">Купить подписку</button>
+                </div>
+                <div class="status-skeleton" id="statusSkeleton">
+                    <div class="skeleton skeleton-hero-title"></div>
+                    <div class="skeleton skeleton-hero-sub"></div>
+                    <div class="skeleton skeleton-hero-btn"></div>
                 </div>
             </section>
 
-            <!-- Статус -->
-            <section class="subscription-section">
-                <div class="subscription-card status-card">
-                    <div class="status-row">
-                        <span class="status-label">Статус</span>
-                        <span id="subStatusBadge" class="status-badge">Не активна</span>
+            <!-- Управление подпиской (только активная) -->
+            <section class="subscription-section" id="manageSection" style="display:none;">
+                <div class="subscription-card manage-card">
+                    <div class="manage-top">
+                        <div>
+                            <div class="manage-status" id="manageStatus">Подписка активна</div>
+                            <div class="manage-sub" id="manageEndDate">Доступ до —</div>
+                        </div>
+                        <div class="status-chip active" id="subStatusBadge">Активна</div>
                     </div>
-                    <div class="status-row">
-                        <span class="status-label">Доступ до</span>
-                        <span id="subEndDate" class="status-value">—</span>
-                    </div>
-                    <div class="status-actions">
+                    <div class="manage-actions">
                         <button class="sub-btn ghost" id="extendBtn">Продлить</button>
                         <button class="sub-btn ghost" id="cancelAutoBtn">Отменить автообновление</button>
                         <button class="sub-btn ghost" id="changeCardBtn">Сменить карту</button>
                     </div>
+
+                    <details class="history-accordion" id="historyAccordion">
+                        <summary>
+                            <span>История платежей</span>
+                            <span class="chevron">⌄</span>
+                        </summary>
+                        <div class="history-list" id="historyList"></div>
+                    </details>
                 </div>
             </section>
 
@@ -74,16 +85,6 @@
                         Каждый год вы получаете эксклюзивную подписную коробку с бумажным выпуском журнала и фирменным мерчем. Тираж 500 шт. Доставка — 490 ₽ (СДЭК ПВЗ).
                     </p>
                     <button class="sub-btn primary large" id="planYearBtn">Выбрать</button>
-                </div>
-            </section>
-
-            <!-- История платежей -->
-            <section class="subscription-section" id="historySection" style="display:none;">
-                <div class="subscription-card history-card">
-                    <div class="history-header">
-                        <span>История платежей</span>
-                    </div>
-                    <div id="historyList" class="history-list"></div>
                 </div>
             </section>
         </main>
@@ -121,6 +122,7 @@
     </nav>
 
     <script src="script.js"></script>
+    <script src="subscription.js"></script>
 </body>
 </html>
 
