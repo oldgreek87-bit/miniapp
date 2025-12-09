@@ -267,6 +267,41 @@ main {
     mask-image: linear-gradient(180deg, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 100%);
 }
 
+.skeleton {
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    height: 14px;
+    width: 100%;
+    margin-bottom: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%   { opacity: 0.4 }
+    50%  { opacity: 1 }
+    100% { opacity: 0.4 }
+}
+
+.skeleton-title {
+    height: 28px;
+    width: 80%;
+    max-width: 320px;
+    margin: 0 auto 12px auto;
+}
+
+.skeleton-meta {
+    height: 14px;
+    width: 60%;
+    max-width: 240px;
+    margin: 4px auto;
+}
+
+.skeleton-description {
+    height: 90px;
+    width: 100%;
+    margin: 0 0 12px 0;
+}
+
 .fade-mask {
     position: absolute;
     bottom: 0;

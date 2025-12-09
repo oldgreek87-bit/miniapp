@@ -53,6 +53,12 @@ async function loadBookOfMonth() {
         const bookDescWrap = document.getElementById('bookDescription');
         const bookDescText = document.getElementById('bookDescriptionText');
         const fadeMask = bookDescWrap.querySelector('.fade-mask');
+        const skeletons = {
+            title: document.getElementById('bookTitleSkeleton'),
+            author: document.getElementById('bookAuthorSkeleton'),
+            publish: document.getElementById('bookPublishSkeleton'),
+            description: document.getElementById('bookDescriptionSkeleton'),
+        };
 
         const book = data && data.title ? data : null;
 
@@ -81,6 +87,7 @@ async function loadBookOfMonth() {
                     this.src = 'book-of-month.png';
                 };
             }
+            setBookLoadingState(false, skeletons);
         } else {
             // Default fallback without overriding title
             bookTitleEl.textContent = 'The Twelve Days of Christmas';
@@ -97,9 +104,11 @@ async function loadBookOfMonth() {
 
 Укутывайтесь в плед, заваривайте чай — и присоединяйтесь к нашей декабрьской традиции. Обещаем атмосферу теплее глинтвейна у камина.`;
             resetDescriptionCollapse(bookDescWrap, bookDescText, fadeMask);
+            setBookLoadingState(false, skeletons);
         }
     } catch (error) {
         console.error('Error loading book:', error);
+        setBookLoadingState(false);
     }
 }
 
@@ -116,6 +125,23 @@ function resetDescriptionCollapse(wrapper, textEl, maskEl) {
     textEl.style.webkitMaskImage = '';
     textEl.style.maskImage = '';
     if (maskEl) maskEl.style.display = 'block';
+}
+
+function setBookLoadingState(isLoading, skeletons = {}) {
+    const titleEl = document.getElementById('bookTitle');
+    const authorEl = document.getElementById('bookAuthor');
+    const publishEl = document.querySelector('.meta-publish');
+    const descEl = document.getElementById('bookDescriptionText');
+
+    if (titleEl) titleEl.style.display = isLoading ? 'none' : 'block';
+    if (authorEl) authorEl.style.display = isLoading ? 'none' : 'block';
+    if (publishEl) publishEl.style.display = isLoading ? 'none' : 'block';
+    if (descEl) descEl.style.display = isLoading ? 'none' : 'block';
+
+    if (skeletons.title) skeletons.title.style.display = isLoading ? 'block' : 'none';
+    if (skeletons.author) skeletons.author.style.display = isLoading ? 'block' : 'none';
+    if (skeletons.publish) skeletons.publish.style.display = isLoading ? 'block' : 'none';
+    if (skeletons.description) skeletons.description.style.display = isLoading ? 'block' : 'none';
 }
 
 function toggleBookDescription() {

@@ -18,11 +18,14 @@
             <div id="bookSection" class="content-section active">
                 <div class="book-hero">
                     <img id="bookImage" src="book-of-month.png" alt="Книга месяца" class="book-cover">
-                    <h1 id="bookTitle" class="book-title-main"></h1>
+                    <div id="bookTitleSkeleton" class="skeleton skeleton-title"></div>
+                    <h1 id="bookTitle" class="book-title-main" style="display:none;"></h1>
                     <div class="book-meta">
                         <span class="book-badge">Книга месяца</span>
-                        <span id="bookAuthor" class="meta-author">Загрузка...</span>
-                        <span class="meta-publish">Публикация: <span id="bookDate">—</span> • <span id="bookPages">—</span></span>
+                        <div id="bookAuthorSkeleton" class="skeleton skeleton-meta"></div>
+                        <span id="bookAuthor" class="meta-author" style="display:none;"></span>
+                        <div id="bookPublishSkeleton" class="skeleton skeleton-meta"></div>
+                        <span class="meta-publish" style="display:none;">Публикация: <span id="bookDate">—</span> • <span id="bookPages">—</span></span>
                     </div>
                     
                     <div class="book-actions">
@@ -53,7 +56,8 @@
                 </div>
 
                 <div class="book-description-preview collapsed" id="bookDescription">
-                    <p id="bookDescriptionText">Загрузка...</p>
+                    <div id="bookDescriptionSkeleton" class="skeleton skeleton-description"></div>
+                    <p id="bookDescriptionText" style="display:none;"></p>
                     <div class="fade-mask"></div>
                 </div>
             </div>
