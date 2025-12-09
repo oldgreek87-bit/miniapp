@@ -39,7 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const navSubscription = document.getElementById('nav-subscription');
     if (navSubscription) {
-        navSubscription.addEventListener('click', () => window.location.href = 'subscription.html');
+        navSubscription.onclick = () => window.location.href = 'subscription.html';
+    } else {
+        document.querySelectorAll('.tab-item[data-tab="subscription"]').forEach(btn => {
+            btn.onclick = () => window.location.href = 'subscription.html';
+        });
     }
 
     const readingRoomBtn = document.getElementById('readingRoomBtn');
