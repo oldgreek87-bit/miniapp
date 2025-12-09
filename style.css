@@ -418,6 +418,9 @@ main {
 
 .subscription-user {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .user-avatar {
@@ -425,9 +428,14 @@ main {
     height: 42px;
     border-radius: 50%;
     background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
-    border: 1px solid rgba(255,255,255,0.1);
     background-size: cover;
     background-position: center;
+}
+
+.subscription-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e5e7eb;
 }
 
 .subscription-main {
@@ -446,6 +454,8 @@ main {
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+    border: none;
+    width: 100%;
 }
 
 .status-hero {
@@ -453,9 +463,9 @@ main {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    background: linear-gradient(135deg, #f37335, #fdc830);
-    color: #000;
-    padding: 16px 18px;
+    background: linear-gradient(140deg, #1a1a1c, #111015 40%, #191c2a 100%);
+    color: #fff;
+    padding: 18px;
     box-shadow: 0 16px 50px rgba(0,0,0,0.55);
 }
 
@@ -466,18 +476,19 @@ main {
 
 .status-hero .hero-sub {
     font-size: 13px;
-    color: rgba(0,0,0,0.8);
+    color: rgba(255,255,255,0.7);
     margin-top: 4px;
 }
 
 .hero-btn {
-    background: #000;
-    color: #fff;
-    padding: 12px 16px;
-    border-radius: 10px;
+    background: #ffffff;
+    color: #000;
+    padding: 12px 18px;
+    border-radius: 999px;
     font-weight: 700;
     border: none;
     box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    white-space: nowrap;
 }
 
 .status-skeleton {
@@ -531,6 +542,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    background: linear-gradient(145deg, #111014, #0d0d0f 50%, #161722 100%);
 }
 
 .manage-top {
@@ -650,6 +662,9 @@ main {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(150deg, #121215, #0f0f12 50%, #1a1b25 100%);
 }
 
 .plans-grid {
@@ -666,8 +681,9 @@ main {
 
 .plan-top {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
 }
 
 .plan-name {
@@ -694,7 +710,7 @@ main {
 }
 
 .plan-card.highlight {
-    background: radial-gradient(circle at 80% 0%, rgba(255,255,255,0.08), rgba(15,15,15,0.9));
+    background: linear-gradient(155deg, #161621, #111018 50%, #1f2335 100%);
     box-shadow: 0 20px 50px rgba(0,0,0,0.55);
 }
 

@@ -7,6 +7,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         setAvatar(user?.photo_url);
+        setName(user);
         loadSubscription();
     });
 
@@ -18,6 +19,16 @@
         } else {
             avatarEl.style.backgroundImage = '';
         }
+    }
+
+    function setName(user) {
+        const nameEl = document.getElementById('subscriptionName');
+        if (!nameEl) return;
+        const fn = user?.first_name || '';
+        const ln = user?.last_name ? ` ${user.last_name}` : '';
+        const uname = user?.username ? `@${user.username}` : '';
+        const label = (fn + ln).trim() || uname || 'Гость';
+        nameEl.textContent = label;
     }
 
     async function loadSubscription() {
