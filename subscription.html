@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bookflix — Подписка</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="subscription-body">
+    <div class="subscription-container">
+        <header class="subscription-header">
+            <div class="subscription-title-block">
+                <h1 class="subscription-page-title">Подписка</h1>
+                <p class="subscription-page-sub">Доступ к клубу, журналу и Reading Room</p>
+            </div>
+            <button class="subscription-close-btn" onclick="window.location.href='index.html'">Закрыть</button>
+        </header>
+
+        <main class="subscription-main">
+            <!-- Статус -->
+            <section class="subscription-section">
+                <div class="subscription-card status-card">
+                    <div id="subStatusSkeleton" class="skeleton skeleton-meta"></div>
+                    <div id="subStatusContent" style="display:none;">
+                        <div class="status-row">
+                            <span class="status-label">Статус</span>
+                            <span id="subStatusBadge" class="status-badge">—</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="status-label">Окончание</span>
+                            <span id="subEndDate" class="status-value">—</span>
+                        </div>
+                        <div class="status-actions">
+                            <button class="sub-btn ghost" id="extendBtn">Продлить</button>
+                            <button class="sub-btn ghost" id="cancelAutoBtn">Отменить автообновление</button>
+                            <button class="sub-btn ghost" id="changeCardBtn">Сменить карту</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Тарифы -->
+            <section class="subscription-section grid-2">
+                <div class="subscription-card plan-card">
+                    <div class="plan-top">
+                        <span class="plan-name">МЕСЯЦ</span>
+                        <span class="plan-price">890 ₽</span>
+                    </div>
+                    <p class="plan-note">Доступ ко всем материалам клуба на 30 дней</p>
+                    <button class="sub-btn primary" onclick="alert('Оплата будет подключена позже')">Выбрать</button>
+                </div>
+
+                <div class="subscription-card plan-card">
+                    <div class="plan-top">
+                        <span class="plan-name">ГОД</span>
+                        <span class="plan-price">7500 ₽</span>
+                    </div>
+                    <p class="plan-note">Каждый год вы получаете эксклюзивную подписную коробку<br>с годовым бумажным выпуском журнала и фирменным мерчем.<br>Тираж 500 шт. Доставка — 490 ₽ (СДЭК ПВЗ).</p>
+                    <button class="sub-btn primary" onclick="alert('Оплата будет подключена позже')">Выбрать</button>
+                </div>
+            </section>
+
+            <!-- Reading Room -->
+            <section class="subscription-section">
+                <div class="subscription-card action-card">
+                    <div class="action-row">
+                        <div>
+                            <div class="action-title">Reading Room</div>
+                            <div class="action-sub">Доступ к закрытому читательскому чату</div>
+                        </div>
+                        <button class="sub-btn outline" id="readingRoomAccessBtn">Открыть</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- История платежей -->
+            <section class="subscription-section">
+                <div class="subscription-card history-card">
+                    <div class="history-header">
+                        <span>История платежей</span>
+                    </div>
+                    <div id="historySkeleton" class="skeleton skeleton-description"></div>
+                    <div id="historyList" class="history-list" style="display:none;"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

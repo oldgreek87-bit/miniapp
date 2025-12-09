@@ -27,9 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadMagazine();
 
     // Setup button handlers
-    document.getElementById('purchaseBtn').addEventListener('click', showPurchaseScreen);
-    document.getElementById('subscriptionBtn').addEventListener('click', showSubscriptionScreen);
-    document.getElementById('readingRoomBtn').addEventListener('click', showReadingRoomScreen);
+    const purchaseBtn = document.getElementById('purchaseBtn');
+    if (purchaseBtn) {
+        purchaseBtn.addEventListener('click', () => window.location.href = 'subscription.html');
+    }
+
+    const subscriptionBtn = document.getElementById('subscriptionBtn');
+    if (subscriptionBtn) {
+        subscriptionBtn.addEventListener('click', () => window.location.href = 'subscription.html');
+    }
+
+    const readingRoomBtn = document.getElementById('readingRoomBtn');
+    if (readingRoomBtn) {
+        readingRoomBtn.addEventListener('click', showReadingRoomScreen);
+    }
 
     // Setup swipe handlers
     setupSwipe();
@@ -37,6 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const descWrapper = document.getElementById('bookDescription');
     if (descWrapper) {
         descWrapper.addEventListener('click', toggleBookDescription);
+    }
+
+    // Subscription page init
+    const subPage = document.querySelector('.subscription-body');
+    if (subPage) {
+        loadSubscriptionScreen();
     }
 });
 
@@ -282,6 +299,90 @@ function hideAllScreens() {
 function showScreen(screenId) {
     hideAllScreens();
     document.getElementById(screenId).classList.remove('hidden');
+}
+
+// Subscription Page Logic
+async function loadSubscriptionScreen() {
+    try {
+        const data = await fetchSubscriptionData();
+        renderSubscription(data);
+    } catch (error) {
+        console.error('Subscription load error:', error);
+        alert('Не удалось загрузить подписку');
+    }
+}
+
+async function fetchSubscriptionData() {
+    const res = await fetch(`${API_BASE_URL}/subscription`);
+    if (!res.ok) throw new Error('Failed to load subscription');
+    return await res.json();
+}
+
+function renderSubscription(data) {
+    const statusContent = document.getElementById('subStatusContent');
+    const statusSkeleton = document.getElementById('subStatusSkeleton');
+    const badge = document.getElementById('subStatusBadge');
+    const endDate = document.getElementById('subEndDate');
+    const historyList = document.getElementById('historyList');
+    const historySkeleton = document.getElementById('historySkeleton');
+    const readingRoomBtn = document.getElementById('readingRoomAccessBtn');
+
+    if (statusSkeleton) statusSkeleton.style.display = 'none';
+    if (statusContent) statusContent.style.display = 'block';
+
+    const isActive = data?.status === 'active';
+    if (badge) {
+        badge.textContent = isActive ? 'Активна' : 'Не активна';
+        badge.classList.toggle('inactive', !isActive);
+    }
+
+    if (endDate) {
+        const end = data?.subscription_end ? new Date(data.subscription_end) : null;
+        endDate.textContent = end ? end.toLocaleDateString('ru-RU') : '—';
+    }
+
+    const extendBtn = document.getElementById('extendBtn');
+    const cancelAutoBtn = document.getElementById('cancelAutoBtn');
+    const changeCardBtn = document.getElementById('changeCardBtn');
+
+    if (extendBtn) extendBtn.onclick = () => alert('Продление будет доступно позже');
+    if (cancelAutoBtn) cancelAutoBtn.onclick = () => alert('Отмена автообновления будет доступна позже');
+    if (changeCardBtn) changeCardBtn.onclick = () => alert('Смена карты будет доступна позже');
+
+    if (readingRoomBtn) {
+        readingRoomBtn.onclick = () => {
+            if (isActive) {
+                window.location.href = 'index.html#readingRoom';
+            } else {
+                alert('Подписка не активна');
+            }
+        };
+    }
+
+    // History
+    if (historySkeleton) historySkeleton.style.display = 'none';
+    if (historyList) {
+        historyList.style.display = 'flex';
+        historyList.innerHTML = '';
+
+        const history = Array.isArray(data?.history) ? data.history : [];
+        if (!history.length) {
+            historyList.innerHTML = '<div class="history-empty">Нет платежей</div>';
+        } else {
+            history.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'history-item';
+                const dt = item.date ? new Date(item.date) : null;
+                const statusClass = item.status === 'failed' ? 'failed' : (item.status === 'pending' ? 'pending' : '');
+                row.innerHTML = `
+                    <span class="history-date">${dt ? dt.toLocaleDateString('ru-RU') : '—'}</span>
+                    <span class="history-amount">${item.amount ? `${item.amount} ₽` : '—'}</span>
+                    <span class="history-status ${statusClass}">${item.status || '—'}</span>
+                `;
+                historyList.appendChild(row);
+            });
+        }
+    }
 }
 
 // Purchase Subscription
