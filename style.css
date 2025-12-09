@@ -669,9 +669,9 @@ main {
     background: linear-gradient(180deg, #1A1A1A, #242424);
     width: 96%;
     max-width: 96%;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 14px auto;
     padding: 28px 20px;
-    border-radius: 24px;
+    border-radius: 20px;
 }
 
 .plans-grid {
