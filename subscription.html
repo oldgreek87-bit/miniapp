@@ -10,82 +10,115 @@
 <body class="subscription-body">
     <div class="subscription-container">
         <header class="subscription-header">
+            <img src="logo.svg" alt="Bookflix" class="subscription-logo">
             <div class="subscription-title-block">
                 <h1 class="subscription-page-title">Подписка</h1>
                 <p class="subscription-page-sub">Доступ к клубу, журналу и Reading Room</p>
             </div>
-            <button class="subscription-close-btn" onclick="window.location.href='index.html'">Закрыть</button>
         </header>
 
         <main class="subscription-main">
+            <!-- Доступ к Reading Room -->
+            <section class="subscription-section">
+                <div class="subscription-card access-card">
+                    <div class="access-left">
+                        <div id="accessStatus" class="access-title">Подписка не активна</div>
+                        <div class="access-sub">Reading Room и материалы клуба</div>
+                    </div>
+                    <button class="sub-btn primary large" id="accessActionBtn">Купить подписку</button>
+                </div>
+            </section>
+
             <!-- Статус -->
             <section class="subscription-section">
                 <div class="subscription-card status-card">
-                    <div id="subStatusSkeleton" class="skeleton skeleton-meta"></div>
-                    <div id="subStatusContent" style="display:none;">
-                        <div class="status-row">
-                            <span class="status-label">Статус</span>
-                            <span id="subStatusBadge" class="status-badge">—</span>
-                        </div>
-                        <div class="status-row">
-                            <span class="status-label">Окончание</span>
-                            <span id="subEndDate" class="status-value">—</span>
-                        </div>
-                        <div class="status-actions">
-                            <button class="sub-btn ghost" id="extendBtn">Продлить</button>
-                            <button class="sub-btn ghost" id="cancelAutoBtn">Отменить автообновление</button>
-                            <button class="sub-btn ghost" id="changeCardBtn">Сменить карту</button>
-                        </div>
+                    <div class="status-row">
+                        <span class="status-label">Статус</span>
+                        <span id="subStatusBadge" class="status-badge">Не активна</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Доступ до</span>
+                        <span id="subEndDate" class="status-value">—</span>
+                    </div>
+                    <div class="status-actions">
+                        <button class="sub-btn ghost" id="extendBtn">Продлить</button>
+                        <button class="sub-btn ghost" id="cancelAutoBtn">Отменить автообновление</button>
+                        <button class="sub-btn ghost" id="changeCardBtn">Сменить карту</button>
                     </div>
                 </div>
             </section>
 
             <!-- Тарифы -->
-            <section class="subscription-section grid-2">
+            <section class="subscription-section plans-grid">
                 <div class="subscription-card plan-card">
                     <div class="plan-top">
-                        <span class="plan-name">МЕСЯЦ</span>
+                        <div>
+                            <span class="plan-name">МЕСЯЦ</span>
+                            <p class="plan-subtitle">30 дней доступа к клубу и Reading Room</p>
+                        </div>
                         <span class="plan-price">890 ₽</span>
                     </div>
-                    <p class="plan-note">Доступ ко всем материалам клуба на 30 дней</p>
-                    <button class="sub-btn primary" onclick="alert('Оплата будет подключена позже')">Выбрать</button>
+                    <p class="plan-note">Подходит, чтобы попробовать формат клуба и встречи в чате.</p>
+                    <button class="sub-btn primary large" id="planMonthBtn">Выбрать</button>
                 </div>
 
-                <div class="subscription-card plan-card">
+                <div class="subscription-card plan-card highlight">
                     <div class="plan-top">
-                        <span class="plan-name">ГОД</span>
-                        <span class="plan-price">7500 ₽</span>
-                    </div>
-                    <p class="plan-note">Каждый год вы получаете эксклюзивную подписную коробку<br>с годовым бумажным выпуском журнала и фирменным мерчем.<br>Тираж 500 шт. Доставка — 490 ₽ (СДЭК ПВЗ).</p>
-                    <button class="sub-btn primary" onclick="alert('Оплата будет подключена позже')">Выбрать</button>
-                </div>
-            </section>
-
-            <!-- Reading Room -->
-            <section class="subscription-section">
-                <div class="subscription-card action-card">
-                    <div class="action-row">
                         <div>
-                            <div class="action-title">Reading Room</div>
-                            <div class="action-sub">Доступ к закрытому читательскому чату</div>
+                            <span class="plan-name">ГОД</span>
+                            <p class="plan-subtitle">12 месяцев доступа + подписная коробка</p>
                         </div>
-                        <button class="sub-btn outline" id="readingRoomAccessBtn">Открыть</button>
+                        <span class="plan-price">7 500 ₽</span>
                     </div>
+                    <p class="plan-note">
+                        Каждый год вы получаете эксклюзивную подписную коробку с бумажным выпуском журнала и фирменным мерчем. Тираж 500 шт. Доставка — 490 ₽ (СДЭК ПВЗ).
+                    </p>
+                    <button class="sub-btn primary large" id="planYearBtn">Выбрать</button>
                 </div>
             </section>
 
             <!-- История платежей -->
-            <section class="subscription-section">
+            <section class="subscription-section" id="historySection" style="display:none;">
                 <div class="subscription-card history-card">
                     <div class="history-header">
                         <span>История платежей</span>
                     </div>
-                    <div id="historySkeleton" class="skeleton skeleton-description"></div>
-                    <div id="historyList" class="history-list" style="display:none;"></div>
+                    <div id="historyList" class="history-list"></div>
                 </div>
             </section>
         </main>
     </div>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+        <button class="tab-item" data-tab="home" onclick="window.location.href='index.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-6v-6H10v6H4a1 1 0 0 1-1-1V9.5z"/>
+            </svg>
+            <span>Главная</span>
+        </button>
+        <button class="tab-item active" data-tab="subscription" onclick="window.location.href='subscription.html'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" ry="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+                <line x1="6" y1="15" x2="9" y2="15"/>
+            </svg>
+            <span>Подписка</span>
+        </button>
+        <button class="tab-item" data-tab="magazine" onclick="window.location.href='index.html#magazine'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>Магазин</span>
+        </button>
+        <button class="tab-item" data-tab="readingRoom" onclick="window.location.href='index.html#readingRoom'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M4 4h16v12H7l-3 3v-3z"/>
+            </svg>
+            <span>Поддержка</span>
+        </button>
+    </nav>
 
     <script src="script.js"></script>
 </body>

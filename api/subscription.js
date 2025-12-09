@@ -6,30 +6,44 @@ async function getSubscriptionStatus(userId) {
         [userId]
     );
 
+    const history = await allQuery(
+        `SELECT payment_id, amount, days, status, completed_at, created_at
+         FROM payment_history
+         WHERE user_id = ?
+         ORDER BY COALESCE(completed_at, created_at) DESC
+         LIMIT 20`,
+        [userId]
+    );
+
     if (!subscription) {
         return {
             status: 'inactive',
             subscription_start: null,
             subscription_end: null,
-            days_remaining: 0
+            days_remaining: 0,
+            payment_id: null,
+            history
         };
     }
 
+    const endDate = subscription.subscription_end ? new Date(subscription.subscription_end) : null;
+    const now = new Date();
+    const isActive = subscription.subscription_status === 'active' && endDate && endDate > now;
+
     let daysRemaining = 0;
-    if (subscription.subscription_end && subscription.subscription_status === 'active') {
-        const endDate = new Date(subscription.subscription_end);
-        const now = new Date();
+    if (endDate && isActive) {
         const diffTime = endDate - now;
         daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         daysRemaining = Math.max(0, daysRemaining);
     }
 
     return {
-        status: subscription.subscription_status,
+        status: isActive ? 'active' : 'inactive',
         subscription_start: subscription.subscription_start,
         subscription_end: subscription.subscription_end,
         days_remaining: daysRemaining,
-        payment_id: subscription.payment_id
+        payment_id: subscription.payment_id,
+        history
     };
 }
 

@@ -303,76 +303,94 @@ function showScreen(screenId) {
 
 // Subscription Page Logic
 async function loadSubscriptionScreen() {
+    const fallback = {
+        status: 'inactive',
+        subscription_end: null,
+        history: []
+    };
+
     try {
         const data = await fetchSubscriptionData();
-        renderSubscription(data);
+        renderSubscription(data || fallback);
     } catch (error) {
         console.error('Subscription load error:', error);
-        alert('Не удалось загрузить подписку');
+        renderSubscription(fallback);
     }
 }
 
 async function fetchSubscriptionData() {
-    const res = await fetch(`${API_BASE_URL}/subscription`);
+    const res = await fetch(`${API_BASE_URL}/subscription-status?user_id=${userId}`);
     if (!res.ok) throw new Error('Failed to load subscription');
     return await res.json();
 }
 
 function renderSubscription(data) {
-    const statusContent = document.getElementById('subStatusContent');
-    const statusSkeleton = document.getElementById('subStatusSkeleton');
     const badge = document.getElementById('subStatusBadge');
     const endDate = document.getElementById('subEndDate');
     const historyList = document.getElementById('historyList');
-    const historySkeleton = document.getElementById('historySkeleton');
-    const readingRoomBtn = document.getElementById('readingRoomAccessBtn');
+    const historySection = document.getElementById('historySection');
+    const accessStatus = document.getElementById('accessStatus');
+    const accessActionBtn = document.getElementById('accessActionBtn');
 
-    if (statusSkeleton) statusSkeleton.style.display = 'none';
-    if (statusContent) statusContent.style.display = 'block';
+    const end = data?.subscription_end ? new Date(data.subscription_end) : null;
+    const now = new Date();
+    const isActive = data?.status === 'active' && end && end > now;
 
-    const isActive = data?.status === 'active';
     if (badge) {
         badge.textContent = isActive ? 'Активна' : 'Не активна';
         badge.classList.toggle('inactive', !isActive);
     }
 
     if (endDate) {
-        const end = data?.subscription_end ? new Date(data.subscription_end) : null;
         endDate.textContent = end ? end.toLocaleDateString('ru-RU') : '—';
+    }
+
+    if (accessStatus) {
+        accessStatus.textContent = isActive
+            ? `Доступ открыт до ${end ? end.toLocaleDateString('ru-RU') : ''}`
+            : 'Подписка не активна';
+    }
+
+    if (accessActionBtn) {
+        accessActionBtn.textContent = isActive ? 'Войти в Reading Room' : 'Купить подписку';
+        accessActionBtn.onclick = () => {
+            if (isActive) {
+                window.location.href = 'index.html#readingRoom';
+            } else {
+                const plansBlock = document.querySelector('.plans-grid');
+                if (plansBlock) {
+                    plansBlock.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        };
     }
 
     const extendBtn = document.getElementById('extendBtn');
     const cancelAutoBtn = document.getElementById('cancelAutoBtn');
     const changeCardBtn = document.getElementById('changeCardBtn');
+    const planMonthBtn = document.getElementById('planMonthBtn');
+    const planYearBtn = document.getElementById('planYearBtn');
 
-    if (extendBtn) extendBtn.onclick = () => alert('Продление будет доступно позже');
-    if (cancelAutoBtn) cancelAutoBtn.onclick = () => alert('Отмена автообновления будет доступна позже');
-    if (changeCardBtn) changeCardBtn.onclick = () => alert('Смена карты будет доступна позже');
+    const placeholderAction = () => alert('Функционал оплаты будет добавлен позже');
 
-    if (readingRoomBtn) {
-        readingRoomBtn.onclick = () => {
-            if (isActive) {
-                window.location.href = 'index.html#readingRoom';
-            } else {
-                alert('Подписка не активна');
-            }
-        };
-    }
+    if (extendBtn) extendBtn.onclick = placeholderAction;
+    if (cancelAutoBtn) cancelAutoBtn.onclick = () => alert('Отмена автообновления будет добавлена позже');
+    if (changeCardBtn) changeCardBtn.onclick = () => alert('Смена карты будет добавлена позже');
+    if (planMonthBtn) planMonthBtn.onclick = placeholderAction;
+    if (planYearBtn) planYearBtn.onclick = placeholderAction;
 
-    // History
-    if (historySkeleton) historySkeleton.style.display = 'none';
-    if (historyList) {
-        historyList.style.display = 'flex';
+    if (historyList && historySection) {
         historyList.innerHTML = '';
-
         const history = Array.isArray(data?.history) ? data.history : [];
         if (!history.length) {
-            historyList.innerHTML = '<div class="history-empty">Нет платежей</div>';
+            historySection.style.display = 'none';
         } else {
+            historySection.style.display = 'block';
             history.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'history-item';
-                const dt = item.date ? new Date(item.date) : null;
+                const dateValue = item.completed_at || item.created_at || item.date;
+                const dt = dateValue ? new Date(dateValue) : null;
                 const statusClass = item.status === 'failed' ? 'failed' : (item.status === 'pending' ? 'pending' : '');
                 row.innerHTML = `
                     <span class="history-date">${dt ? dt.toLocaleDateString('ru-RU') : '—'}</span>
