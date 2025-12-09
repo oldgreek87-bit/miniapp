@@ -9,6 +9,7 @@
         setAvatar(user?.photo_url);
         setName(user);
         loadSubscription();
+        hookTabNav();
     });
 
     function setAvatar(photoUrl) {
@@ -96,6 +97,13 @@
 
         hookButtons();
         renderHistory(isActive, data?.history);
+    }
+
+    function hookTabNav() {
+        const tabBtn = document.querySelector('.tab-item[data-tab="subscription"]');
+        if (tabBtn) {
+            tabBtn.onclick = () => window.location.href = 'subscription.html';
+        }
     }
 
     function hookButtons() {
