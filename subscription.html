@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bookflix — Подписка</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="subscription-body">
@@ -63,29 +63,23 @@
             <!-- Тарифы -->
             <section class="subscription-section plans-grid">
                 <div class="subscription-card plan-card">
-                    <div class="plan-top">
-                        <div>
-                            <span class="plan-name">МЕСЯЦ</span>
-                            <p class="plan-subtitle">30 дней доступа к клубу и Reading Room</p>
-                        </div>
-                        <span class="plan-price">890 ₽</span>
+                    <div class="plan-title">МЕСЯЦ</div>
+                    <div class="plan-subtitle">30 дней доступа к клубу</div>
+                    <div class="plan-desc">
+                        Читаем новую книгу каждый месяц, прокачиваем словарный запас и эрудицию, обсуждаем книгу на английском в чате и на воскресных встречах.
                     </div>
-                    <p class="plan-note">Подходит, чтобы попробовать формат клуба и встречи в чате.</p>
-                    <button class="sub-btn primary large" id="planMonthBtn">Выбрать</button>
+                    <div class="plan-price">890 ₽</div>
+                    <button class="plan-cta" id="planMonthBtn">Выбрать</button>
                 </div>
 
                 <div class="subscription-card plan-card highlight">
-                    <div class="plan-top">
-                        <div>
-                            <span class="plan-name">ГОД</span>
-                            <p class="plan-subtitle">12 месяцев доступа + подписная коробка</p>
-                        </div>
-                        <span class="plan-price">7 500 ₽</span>
+                    <div class="plan-title">ГОД</div>
+                    <div class="plan-subtitle">12 месяцев доступа + подписная коробка</div>
+                    <div class="plan-desc">
+                        Всё из месячной подписки, только выгоднее — плюс эксклюзивная подписная коробка в подарок. Доставка коробки оплачивается отдельно.
                     </div>
-                    <p class="plan-note">
-                        Каждый год вы получаете эксклюзивную подписную коробку с бумажным выпуском журнала и фирменным мерчем. Тираж 500 шт. Доставка — 490 ₽ (СДЭК ПВЗ).
-                    </p>
-                    <button class="sub-btn primary large" id="planYearBtn">Выбрать</button>
+                    <div class="plan-price">7 500 ₽</div>
+                    <button class="plan-cta" id="planYearBtn">Выбрать</button>
                 </div>
             </section>
         </main>
@@ -99,7 +93,7 @@
             </svg>
             <span>Главная</span>
         </button>
-        <button class="tab-item active" data-tab="subscription" onclick="window.location.href='subscription.html'">
+        <button class="tab-item active" data-tab="subscription" id="nav-subscription" onclick="window.location.href='subscription.html'">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="5" width="20" height="14" rx="2" ry="2"/>
                 <line x1="2" y1="10" x2="22" y2="10"/>
@@ -122,8 +116,8 @@
         </button>
     </nav>
 
-    <script src="script.js"></script>
-    <script src="subscription.js"></script>
+    <script src="script.js?v=2.0"></script>
+    <script src="subscription.js?v=2.0"></script>
 </body>
 </html>
 
