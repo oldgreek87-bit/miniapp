@@ -2,7 +2,7 @@
 const { createPayment } = require('./payment');
 const { runQuery, getQuery, allQuery } = require('./db');
 const { getSubscriptionStatus, activateSubscription, cancelSubscription, hasActiveSubscription } = require('./subscription');
-const { getChannelInviteLink, getTelegramUserInfo, sendMessageToUser } = require('./telegram');
+const { getChannelInviteLink, getTelegramUserInfo, sendMessageToUser, getBotUsername } = require('./telegram');
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -310,6 +310,165 @@ module.exports = async (req, res) => {
                 message: 'Channel access updated',
                 ...result
             });
+        }
+
+        // Support: Get bot username for deeplink
+        if (path === '/support/bot-username' && method === 'GET') {
+            const username = await getBotUsername();
+            return res.json({ username: username || 'bookflix_support_bot' });
+        }
+
+        // Support: Webhook for receiving messages from Telegram
+        if (path === '/support/webhook' && method === 'POST') {
+            let update = req.body;
+            
+            // Parse JSON if body is a string (for Vercel compatibility)
+            if (typeof update === 'string') {
+                try {
+                    update = JSON.parse(update);
+                } catch (e) {
+                    console.error('Error parsing webhook body:', e);
+                    return res.json({ ok: true }); // Return ok to prevent retries
+                }
+            }
+            
+            // Handle message from user
+            if (update.message && update.message.from) {
+                const userId = update.message.from.id;
+                const messageText = update.message.text || '';
+                const messageId = update.message.message_id;
+
+                // Save message to database
+                await runQuery(
+                    `INSERT INTO messages (user_id, message_text, is_from_user, created_at)
+                     VALUES (?, ?, 1, CURRENT_TIMESTAMP)`,
+                    [userId, messageText]
+                );
+
+                // Check if this is first message from user
+                const messageCount = await getQuery(
+                    `SELECT COUNT(*) as count FROM messages WHERE user_id = ? AND is_from_user = 1`,
+                    [userId]
+                );
+
+                // Send welcome message if first message
+                if (messageCount.count === 1) {
+                    const welcomeMessage = 'Если у вас есть вопрос или нужна помощь — напишите прямо в этот чат, мы на связи🤍';
+                    const { sendMessageToUser } = require('./telegram');
+                    await sendMessageToUser(userId, welcomeMessage);
+                    
+                    // Save welcome message to database
+                    await runQuery(
+                        `INSERT INTO messages (user_id, message_text, is_from_user, created_at)
+                         VALUES (?, ?, 0, CURRENT_TIMESTAMP)`,
+                        [userId, welcomeMessage]
+                    );
+                }
+
+                return res.json({ ok: true });
+            }
+
+            return res.json({ ok: true });
+        }
+
+        // Admin: Get list of conversations (users with messages)
+        if (path === '/admin/conversations' && method === 'GET') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const conversations = await allQuery(`
+                SELECT DISTINCT 
+                    m.user_id,
+                    MAX(m.created_at) as last_message_at,
+                    COUNT(CASE WHEN m.is_from_user = 1 THEN 1 END) as unread_count
+                FROM messages m
+                GROUP BY m.user_id
+                ORDER BY last_message_at DESC
+            `);
+
+            const conversationsWithInfo = await Promise.all(
+                conversations.map(async (conv) => {
+                    const userInfo = await getTelegramUserInfo(conv.user_id);
+                    const lastMessage = await getQuery(
+                        `SELECT message_text, created_at, is_from_user 
+                         FROM messages 
+                         WHERE user_id = ? 
+                         ORDER BY created_at DESC 
+                         LIMIT 1`,
+                        [conv.user_id]
+                    );
+
+                    return {
+                        user_id: conv.user_id,
+                        username: userInfo?.username || null,
+                        first_name: userInfo?.first_name || null,
+                        last_name: userInfo?.last_name || null,
+                        photo_url: userInfo?.photo_url || null,
+                        last_message: lastMessage?.message_text || '',
+                        last_message_at: lastMessage?.created_at || conv.last_message_at,
+                        unread_count: conv.unread_count || 0
+                    };
+                })
+            );
+
+            return res.json({ conversations: conversationsWithInfo });
+        }
+
+        // Admin: Get conversation history
+        if (path === '/admin/conversation' && method === 'GET') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { user_id } = req.query;
+            if (!user_id) {
+                return res.status(400).json({ error: 'Missing user_id parameter' });
+            }
+
+            const messages = await allQuery(
+                `SELECT id, message_text, is_from_user, created_at
+                 FROM messages
+                 WHERE user_id = ?
+                 ORDER BY created_at ASC`,
+                [user_id]
+            );
+
+            const userInfo = await getTelegramUserInfo(parseInt(user_id));
+
+            return res.json({
+                user_id: parseInt(user_id),
+                user_info: userInfo,
+                messages: messages
+            });
+        }
+
+        // Admin: Send reply to user
+        if (path === '/admin/send-reply' && method === 'POST') {
+            if (!isAdmin) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const { user_id, message_text } = req.body;
+            if (!user_id || !message_text) {
+                return res.status(400).json({ error: 'Missing user_id or message_text' });
+            }
+
+            // Send message via Telegram
+            const result = await sendMessageToUser(parseInt(user_id), message_text);
+            
+            if (!result.success) {
+                return res.status(500).json({ error: result.error || 'Failed to send message' });
+            }
+
+            // Save message to database
+            await runQuery(
+                `INSERT INTO messages (user_id, message_text, is_from_user, created_at)
+                 VALUES (?, ?, 0, CURRENT_TIMESTAMP)`,
+                [user_id, message_text]
+            );
+
+            return res.json({ success: true });
         }
 
         // 404 for unknown routes

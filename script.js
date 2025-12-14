@@ -51,6 +51,17 @@ document.addEventListener('DOMContentLoaded', () => {
         readingRoomBtn.addEventListener('click', showReadingRoomScreen);
     }
 
+    // Support button handler
+    const supportBtn = document.getElementById('readingRoomTabBtn');
+    if (supportBtn) {
+        supportBtn.addEventListener('click', openSupportChat);
+    }
+    
+    // Support button in subscription page
+    document.querySelectorAll('.tab-item[data-tab="readingRoom"]').forEach(btn => {
+        btn.addEventListener('click', openSupportChat);
+    });
+
     // Setup swipe handlers
     setupSwipe();
 
@@ -652,6 +663,39 @@ function renderReadingRoomAccess(data) {
 // Confirmation Screen
 function showConfirmationScreen() {
     showScreen('confirmationScreen');
+}
+
+// Open support chat
+async function openSupportChat(event) {
+    if (event) {
+        event.preventDefault();
+    }
+    
+    try {
+        // Get bot username from API
+        const response = await fetch(`${API_BASE_URL}/support/bot-username`);
+        const data = await response.json();
+        const botUsername = data.username || 'bookflix_support_bot';
+        
+        // Use deeplink to open chat with bot
+        const deeplink = `https://t.me/${botUsername}`;
+        
+        // Use Telegram WebApp method if available
+        if (tg && tg.openLink) {
+            tg.openLink(deeplink);
+        } else {
+            window.open(deeplink, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening support chat:', error);
+        // Fallback: try to open with default bot username
+        const fallbackLink = 'https://t.me/bookflix_support_bot';
+        if (tg && tg.openLink) {
+            tg.openLink(fallbackLink);
+        } else {
+            window.open(fallbackLink, '_blank');
+        }
+    }
 }
 
 function showError(message) {

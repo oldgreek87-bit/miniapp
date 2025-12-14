@@ -131,12 +131,27 @@ async function sendMessageToUser(userId, text) {
     }
 }
 
+async function getBotUsername() {
+    if (!bot) {
+        return process.env.TELEGRAM_BOT_USERNAME || null;
+    }
+
+    try {
+        const me = await bot.getMe();
+        return me.username || null;
+    } catch (error) {
+        console.error('Error getting bot username:', error);
+        return process.env.TELEGRAM_BOT_USERNAME || null;
+    }
+}
+
 module.exports = {
     removeUserFromChannel,
     addUserToChannel,
     checkAndManageChannelAccess,
     getChannelInviteLink,
     getTelegramUserInfo,
-    sendMessageToUser
+    sendMessageToUser,
+    getBotUsername
 };
 

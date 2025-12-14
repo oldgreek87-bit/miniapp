@@ -34,6 +34,8 @@ function switchTab(tabName) {
         loadUsers();
     } else if (tabName === 'content') {
         loadCurrentContent();
+    } else if (tabName === 'chats') {
+        loadConversations();
     }
 }
 
@@ -285,6 +287,197 @@ function showSuccess(message) {
     setTimeout(() => {
         successDiv.style.display = 'none';
     }, 3000);
+}
+
+// Load conversations
+async function loadConversations() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/conversations?admin_token=${ADMIN_TOKEN}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось загрузить чаты');
+        }
+        
+        renderConversations(data.conversations);
+    } catch (error) {
+        showError(error.message);
+        document.getElementById('chatsContainer').innerHTML = `
+            <div class="error">Ошибка загрузки чатов: ${error.message}</div>
+        `;
+    }
+}
+
+function renderConversations(conversations) {
+    const container = document.getElementById('chatsContainer');
+    
+    if (conversations.length === 0) {
+        container.innerHTML = '<div class="loading">Чаты не найдены</div>';
+        return;
+    }
+    
+    const list = conversations.map(conv => {
+        const userName = conv.first_name && conv.last_name 
+            ? `${conv.first_name} ${conv.last_name}` 
+            : (conv.first_name || conv.username || `Пользователь ${conv.user_id}`);
+        
+        const lastMessagePreview = conv.last_message 
+            ? (conv.last_message.length > 50 ? conv.last_message.substring(0, 50) + '...' : conv.last_message)
+            : 'Нет сообщений';
+        
+        const lastMessageDate = conv.last_message_at 
+            ? new Date(conv.last_message_at).toLocaleString('ru-RU')
+            : 'Н/Д';
+        
+        return `
+            <div class="conversation-item" onclick="openConversation(${conv.user_id})" style="
+                background-color: #1a1a1a;
+                border: 2px solid #333;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 15px;
+                cursor: pointer;
+                transition: all 0.2s;
+            " onmouseover="this.style.borderColor='#666'" onmouseout="this.style.borderColor='#333'">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    ${conv.photo_url ? `<img src="${conv.photo_url}" alt="${userName}" class="user-avatar" onerror="this.style.display='none'">` : '<div class="user-avatar"></div>'}
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">${userName}</div>
+                        ${conv.username ? `<div style="color: #999; font-size: 12px; margin-bottom: 5px;">@${conv.username}</div>` : ''}
+                        <div style="color: #ccc; font-size: 14px; margin-bottom: 5px;">${lastMessagePreview}</div>
+                        <div style="color: #666; font-size: 12px;">${lastMessageDate}</div>
+                    </div>
+                    ${conv.unread_count > 0 ? `<div style="background: #0066ff; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${conv.unread_count}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = list;
+}
+
+let currentConversationUserId = null;
+
+async function openConversation(userId) {
+    currentConversationUserId = userId;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/conversation?user_id=${userId}&admin_token=${ADMIN_TOKEN}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось загрузить диалог');
+        }
+        
+        renderConversation(data);
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function renderConversation(conversation) {
+    const userName = conversation.user_info?.first_name && conversation.user_info?.last_name
+        ? `${conversation.user_info.first_name} ${conversation.user_info.last_name}`
+        : (conversation.user_info?.first_name || conversation.user_info?.username || `Пользователь ${conversation.user_id}`);
+    
+    const messagesHtml = conversation.messages.map(msg => `
+        <div style="
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: ${msg.is_from_user ? '#1a1a1a' : '#0066ff'};
+            color: ${msg.is_from_user ? '#fff' : '#fff'};
+            max-width: 80%;
+            ${msg.is_from_user ? 'margin-left: 0;' : 'margin-left: auto;'}
+        ">
+            <div style="font-size: 14px; line-height: 1.5;">${escapeHtml(msg.message_text)}</div>
+            <div style="font-size: 11px; color: ${msg.is_from_user ? '#999' : '#ccc'}; margin-top: 5px;">
+                ${new Date(msg.created_at).toLocaleString('ru-RU')}
+            </div>
+        </div>
+    `).join('');
+    
+    const container = document.getElementById('chatsContainer');
+    container.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <button class="btn" onclick="loadConversations()" style="margin-bottom: 15px;">← Назад к списку</button>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background-color: #1a1a1a; border-radius: 8px;">
+                ${conversation.user_info?.photo_url ? `<img src="${conversation.user_info.photo_url}" alt="${userName}" class="user-avatar" onerror="this.style.display='none'">` : '<div class="user-avatar"></div>'}
+                <div>
+                    <div style="font-weight: 600; font-size: 16px;">${userName}</div>
+                    ${conversation.user_info?.username ? `<div style="color: #999; font-size: 12px;">@${conversation.user_info.username}</div>` : ''}
+                </div>
+            </div>
+        </div>
+        <div style="
+            background-color: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        ">
+            ${messagesHtml || '<div class="loading">Нет сообщений</div>'}
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="replyMessageInput" placeholder="Введите ответ..." style="
+                flex: 1;
+                background-color: #000000;
+                color: #ffffff;
+                border: 2px solid #ffffff;
+                padding: 12px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-family: inherit;
+            " onkeypress="if(event.key === 'Enter') sendReply()">
+            <button class="btn btn-primary" onclick="sendReply()">Отправить</button>
+        </div>
+    `;
+}
+
+async function sendReply() {
+    const input = document.getElementById('replyMessageInput');
+    const messageText = input.value.trim();
+    
+    if (!messageText || !currentConversationUserId) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/send-reply`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Token': ADMIN_TOKEN
+            },
+            body: JSON.stringify({
+                user_id: currentConversationUserId,
+                message_text: messageText,
+                admin_token: ADMIN_TOKEN
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Не удалось отправить сообщение');
+        }
+        
+        input.value = '';
+        showSuccess('Сообщение отправлено!');
+        
+        // Reload conversation
+        await openConversation(currentConversationUserId);
+    } catch (error) {
+        showError('Ошибка: ' + error.message);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Load content on page load

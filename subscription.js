@@ -10,7 +10,38 @@
         setName(user);
         loadSubscription();
         hookTabNav();
+        setupSupportButton();
     });
+
+    async function openSupportChat() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/support/bot-username`);
+            const data = await response.json();
+            const botUsername = data.username || 'bookflix_support_bot';
+            const deeplink = `https://t.me/${botUsername}`;
+            
+            if (tg && tg.openLink) {
+                tg.openLink(deeplink);
+            } else {
+                window.open(deeplink, '_blank');
+            }
+        } catch (error) {
+            console.error('Error opening support chat:', error);
+            const fallbackLink = 'https://t.me/bookflix_support_bot';
+            if (tg && tg.openLink) {
+                tg.openLink(fallbackLink);
+            } else {
+                window.open(fallbackLink, '_blank');
+            }
+        }
+    }
+
+    function setupSupportButton() {
+        const supportBtn = document.getElementById('supportBtnSubscription');
+        if (supportBtn) {
+            supportBtn.addEventListener('click', openSupportChat);
+        }
+    }
 
     function setAvatar(photoUrl) {
         const avatarEl = document.getElementById('subscriptionAvatar');
