@@ -20,18 +20,23 @@
             const botUsername = data.username || 'bookflix_support_bot';
             const deeplink = `https://t.me/${botUsername}`;
             
-            if (tg && tg.openLink) {
+            // Use openTelegramLink to open inside Telegram (not external browser)
+            if (tg && tg.openTelegramLink) {
+                tg.openTelegramLink(deeplink);
+            } else if (tg && tg.openLink) {
                 tg.openLink(deeplink);
             } else {
-                window.open(deeplink, '_blank');
+                window.location.href = deeplink;
             }
         } catch (error) {
             console.error('Error opening support chat:', error);
             const fallbackLink = 'https://t.me/bookflix_support_bot';
-            if (tg && tg.openLink) {
+            if (tg && tg.openTelegramLink) {
+                tg.openTelegramLink(fallbackLink);
+            } else if (tg && tg.openLink) {
                 tg.openLink(fallbackLink);
             } else {
-                window.open(fallbackLink, '_blank');
+                window.location.href = fallbackLink;
             }
         }
     }

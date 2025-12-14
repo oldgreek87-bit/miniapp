@@ -680,20 +680,27 @@ async function openSupportChat(event) {
         // Use deeplink to open chat with bot
         const deeplink = `https://t.me/${botUsername}`;
         
-        // Use Telegram WebApp method if available
-        if (tg && tg.openLink) {
+        // Use Telegram WebApp method to open link inside Telegram (not external browser)
+        // openTelegramLink opens link inside Telegram, openLink opens in external browser
+        if (tg && tg.openTelegramLink) {
+            tg.openTelegramLink(deeplink);
+        } else if (tg && tg.openLink) {
+            // Fallback to openLink if openTelegramLink not available
             tg.openLink(deeplink);
         } else {
-            window.open(deeplink, '_blank');
+            // Last resort fallback
+            window.location.href = deeplink;
         }
     } catch (error) {
         console.error('Error opening support chat:', error);
         // Fallback: try to open with default bot username
         const fallbackLink = 'https://t.me/bookflix_support_bot';
-        if (tg && tg.openLink) {
+        if (tg && tg.openTelegramLink) {
+            tg.openTelegramLink(fallbackLink);
+        } else if (tg && tg.openLink) {
             tg.openLink(fallbackLink);
         } else {
-            window.open(fallbackLink, '_blank');
+            window.location.href = fallbackLink;
         }
     }
 }

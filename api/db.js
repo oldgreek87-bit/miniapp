@@ -2,7 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Use /tmp for Vercel serverless (writable directory)
+// Database path configuration
+// IMPORTANT: /tmp is cleared between serverless function invocations on Vercel
+// For persistent storage, set DB_PATH environment variable to point to:
+// - Vercel Blob Storage path
+// - External database service
+// - Or use a managed database (Postgres, etc.)
+// Default: /tmp/bookflix.db (temporary, data will be lost between invocations)
 const DB_PATH = process.env.DB_PATH || (process.env.VERCEL ? '/tmp/bookflix.db' : path.join(__dirname, '../data/bookflix.db'));
 
 // Ensure data directory exists
@@ -114,6 +120,11 @@ let dbInstance = null;
 async function getDB() {
     if (!dbInstance) {
         dbInstance = await initDB();
+        // Log database path for debugging
+        if (process.env.VERCEL && DB_PATH === '/tmp/bookflix.db') {
+            console.warn('WARNING: Using temporary storage (/tmp). Data will be lost between serverless invocations.');
+            console.warn('For persistent storage, set DB_PATH environment variable to external storage.');
+        }
     }
     return dbInstance;
 }

@@ -332,11 +332,43 @@ module.exports = async (req, res) => {
                 }
             }
             
+            // Handle /start command - send welcome message when user opens chat
+            if (update.message && update.message.from && update.message.text === '/start') {
+                const userId = update.message.from.id;
+                
+                // Check if welcome message was already sent to this user
+                const existingWelcome = await getQuery(
+                    `SELECT id FROM messages WHERE user_id = ? AND is_from_user = 0 AND message_text LIKE '%на связи%' LIMIT 1`,
+                    [userId]
+                );
+                
+                // Send welcome message if not sent before
+                if (!existingWelcome) {
+                    const welcomeMessage = 'Если у вас есть вопрос или нужна помощь — напишите прямо в этот чат, мы на связи🤍';
+                    const { sendMessageToUser } = require('./telegram');
+                    await sendMessageToUser(userId, welcomeMessage);
+                    
+                    // Save welcome message to database
+                    await runQuery(
+                        `INSERT INTO messages (user_id, message_text, is_from_user, created_at)
+                         VALUES (?, ?, 0, CURRENT_TIMESTAMP)`,
+                        [userId, welcomeMessage]
+                    );
+                }
+                
+                return res.json({ ok: true });
+            }
+            
             // Handle message from user
             if (update.message && update.message.from) {
                 const userId = update.message.from.id;
                 const messageText = update.message.text || '';
                 const messageId = update.message.message_id;
+
+                // Skip /start command as it's handled above
+                if (messageText === '/start') {
+                    return res.json({ ok: true });
+                }
 
                 // Save message to database
                 await runQuery(
@@ -345,14 +377,20 @@ module.exports = async (req, res) => {
                     [userId, messageText]
                 );
 
+                // Check if welcome message was sent (for first-time users who didn't use /start)
+                const existingWelcome = await getQuery(
+                    `SELECT id FROM messages WHERE user_id = ? AND is_from_user = 0 AND message_text LIKE '%на связи%' LIMIT 1`,
+                    [userId]
+                );
+                
                 // Check if this is first message from user
                 const messageCount = await getQuery(
                     `SELECT COUNT(*) as count FROM messages WHERE user_id = ? AND is_from_user = 1`,
                     [userId]
                 );
 
-                // Send welcome message if first message
-                if (messageCount.count === 1) {
+                // Send welcome message if first message and welcome not sent yet
+                if (messageCount.count === 1 && !existingWelcome) {
                     const welcomeMessage = 'Если у вас есть вопрос или нужна помощь — напишите прямо в этот чат, мы на связи🤍';
                     const { sendMessageToUser } = require('./telegram');
                     await sendMessageToUser(userId, welcomeMessage);
